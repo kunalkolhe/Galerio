@@ -2,8 +2,6 @@
 
 Galerio (formerly Photo LUTs Gallery) is a premium, modern marketplace platform designed to connect clients with elite photo editors, video editors, colorists, and retouchers from around the world.
 
-![Galerio Hero Section](frontend/public/hero-bg.png)
-
 ## 🌟 Key Features
 
 ### 1. 3-in-1 Smart Portfolio System
