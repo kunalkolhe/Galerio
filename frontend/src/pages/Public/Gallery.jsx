@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Masonry from 'react-masonry-css';
-import { Filter, Search } from 'lucide-react';
+import { Filter, Search, User, Video, Image as ImageIcon, Layers } from 'lucide-react';
 import BeforeAfterSlider from '../../components/BeforeAfterSlider';
 
 const Gallery = () => {
@@ -82,14 +83,60 @@ const Gallery = () => {
           columnClassName="pl-6 bg-clip-padding"
         >
           {filteredItems.map(item => (
-            <div key={item.id} className="mb-6 rounded-xl overflow-hidden bg-[#080808] border border-brand-gray group">
-              <BeforeAfterSlider beforeImage={`${API_BASE_URL}${item.before_image}`} afterImage={`${API_BASE_URL}${item.after_image}`} title={item.title} />
-              <div className="p-5">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-lg font-semibold text-brand-white">{item.title}</h3>
-                  <span className="text-xs px-2 py-1 bg-brand-gray text-brand-gold rounded">{item.category ? item.category.name : 'Uncategorized'}</span>
+            <div key={item.id} className="mb-6 rounded-xl overflow-hidden bg-[#080808] border border-brand-gray group flex flex-col">
+              {item.work_type === 'Video' ? (
+                <div className="relative pt-[56.25%] w-full bg-black overflow-hidden group-hover:opacity-90 transition-opacity">
+                  <video 
+                    src={`${API_BASE_URL}${item.before_image}`} 
+                    controls 
+                    className="absolute top-0 left-0 w-full h-full object-contain"
+                  />
                 </div>
-                <p className="text-sm text-gray-500">{item.description || 'Custom Edit'}</p>
+              ) : item.work_type === 'LUTs' ? (
+                <BeforeAfterSlider 
+                  beforeImage={`${API_BASE_URL}${item.before_image}`} 
+                  afterImage={`${API_BASE_URL}${item.after_image}`} 
+                  title={item.title} 
+                />
+              ) : (
+                <div className="relative pt-[66%] w-full bg-black overflow-hidden">
+                  <img 
+                    src={`${API_BASE_URL}${item.before_image}`} 
+                    alt={item.title}
+                    className="absolute top-0 left-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+              )}
+
+              <div className="p-5 flex-1 flex flex-col">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="text-lg font-semibold text-brand-white flex items-center gap-2">
+                    {item.work_type === 'Video' ? <Video className="w-4 h-4 text-brand-gold" /> : 
+                     item.work_type === 'LUTs' ? <Layers className="w-4 h-4 text-brand-gold" /> : 
+                     <ImageIcon className="w-4 h-4 text-brand-gold" />}
+                    {item.title}
+                  </h3>
+                  <span className="text-xs px-2 py-1 bg-brand-gray text-brand-gold rounded">{item.work_category || 'Uncategorized'}</span>
+                </div>
+                <p className="text-sm text-gray-500 mb-4 flex-1">{item.description || 'Custom Edit'}</p>
+                
+                {/* Editor Info & Profile Link */}
+                {item.creator && (
+                  <div className="pt-4 border-t border-brand-gray/50 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-brand-gold/20 flex items-center justify-center border border-brand-gold">
+                        <User className="w-3 h-3 text-brand-gold" />
+                      </div>
+                      <span className="text-xs text-gray-400">Edited by <span className="text-brand-white font-medium">{item.creator.name}</span></span>
+                    </div>
+                    <Link 
+                      to={`/profile/${item.created_by}`}
+                      className="text-xs font-semibold text-brand-gold hover:text-white transition-colors"
+                    >
+                      View Profile &rarr;
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
           ))}

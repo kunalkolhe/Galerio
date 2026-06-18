@@ -36,7 +36,7 @@ const Navbar = () => {
           <div className="flex-shrink-0 flex items-center">
             <Link to="/" className="flex items-center gap-2 group">
               <Camera className="w-8 h-8 text-brand-gold group-hover:scale-110 transition-transform" />
-              <span className="font-bold text-xl tracking-wider text-brand-white">LUX<span className="text-brand-gold">LUTs</span></span>
+              <span className="font-bold text-xl tracking-wider text-brand-white">Galerio</span>
             </Link>
           </div>
           
@@ -53,20 +53,34 @@ const Navbar = () => {
               </Link>
             ))}
             {user ? (
-              <div className="flex items-center gap-4 border-l border-brand-gray pl-4">
-                <div className="flex items-center gap-2 text-brand-white">
-                  <div className="w-8 h-8 rounded-full bg-brand-gold/20 flex items-center justify-center border border-brand-gold">
-                    <User className="w-4 h-4 text-brand-gold" />
+              <div className="relative group">
+                <div className="flex items-center gap-4 border-l border-brand-gray pl-4 cursor-pointer">
+                  <div className="flex items-center gap-2 text-brand-white">
+                    <div className="w-8 h-8 rounded-full bg-brand-gold/20 flex items-center justify-center border border-brand-gold">
+                      <User className="w-4 h-4 text-brand-gold" />
+                    </div>
+                    <span className="text-sm font-medium">{user.name}</span>
                   </div>
-                  <span className="text-sm font-medium">{user.name}</span>
                 </div>
-                <button
-                  onClick={handleLogout}
-                  className="p-2 text-gray-400 hover:text-red-500 transition-colors"
-                  title="Logout"
-                >
-                  <LogOut className="w-5 h-5" />
-                </button>
+                
+                {/* Dropdown Menu */}
+                <div className="absolute right-0 mt-2 w-48 bg-brand-black border border-brand-gray rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 overflow-hidden pt-1">
+                  <Link to="/editor" className="block px-4 py-3 text-sm text-gray-300 hover:text-brand-gold hover:bg-brand-gray/50 border-b border-brand-gray/30">
+                    Editor Dashboard
+                  </Link>
+                  <Link to="/upload" className="block px-4 py-3 text-sm text-gray-300 hover:text-brand-gold hover:bg-brand-gray/50 border-b border-brand-gray/30">
+                    Add Work
+                  </Link>
+                  <Link to="/settings" className="block px-4 py-3 text-sm text-gray-300 hover:text-brand-gold hover:bg-brand-gray/50 border-b border-brand-gray/30">
+                    Settings
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-4 py-3 text-sm text-red-400 hover:text-red-500 hover:bg-red-500/10 transition-colors flex items-center justify-between"
+                  >
+                    Logout <LogOut className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             ) : (
               <Link to="/login" className="px-5 py-2 rounded-full bg-transparent border border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-brand-black transition-all text-sm font-medium">
@@ -109,6 +123,17 @@ const Navbar = () => {
                     <p className="text-brand-white font-medium">{user.name}</p>
                     <p className="text-xs text-gray-400">{user.email}</p>
                   </div>
+                </div>
+                <div className="space-y-2 mb-4">
+                  <Link to="/editor" onClick={() => setIsOpen(false)} className="block w-full px-4 py-2 text-sm text-gray-300 hover:text-brand-gold hover:bg-brand-gray/50 rounded">
+                    Editor Dashboard
+                  </Link>
+                  <Link to="/upload" onClick={() => setIsOpen(false)} className="block w-full px-4 py-2 text-sm text-gray-300 hover:text-brand-gold hover:bg-brand-gray/50 rounded">
+                    Add Work
+                  </Link>
+                  <Link to="/settings" onClick={() => setIsOpen(false)} className="block w-full px-4 py-2 text-sm text-gray-300 hover:text-brand-gold hover:bg-brand-gray/50 rounded">
+                    Settings
+                  </Link>
                 </div>
                 <button
                   onClick={() => { setIsOpen(false); handleLogout(); }}

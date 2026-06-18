@@ -8,10 +8,11 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8 mb-12">
           <div className="col-span-1 md:col-span-2">
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <Camera className="w-8 h-8 text-brand-gold" />
-              <span className="font-bold text-2xl tracking-wider text-brand-white">LUX<span className="text-brand-gold">LUTs</span></span>
-            </Link>
+            <div className="flex items-center gap-2 mb-4">
+              <span className="font-bold text-3xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
+                Galerio
+              </span>
+            </div>
             <p className="text-gray-400 max-w-sm mb-6 leading-relaxed">
               Elevating your photography with premium color grading. We transform ordinary moments into cinematic masterpieces.
             </p>
@@ -46,9 +47,9 @@ const Footer = () => {
           </div>
         </div>
         
-        <div className="border-t border-brand-gray pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
-          <p>&copy; {new Date().getFullYear()} LUXLUTs Gallery. All rights reserved.</p>
-          <p className="mt-2 md:mt-0">Designed with <span className="text-brand-gold">♥</span></p>
+        <div className="border-t border-brand-gray mt-12 pt-8 text-center text-gray-500 text-sm flex flex-col md:flex-row justify-between items-center">
+          <p>&copy; {new Date().getFullYear()} Galerio. All rights reserved.</p>
+          <p className="mt-2 md:mt-0">Developed by <span className="text-brand-gold font-medium">Kunal Kolhe</span></p>
         </div>
       </div>
     </footer>

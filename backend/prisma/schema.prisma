@@ -12,10 +12,22 @@ model User {
   name          String
   email         String    @unique
   password_hash String
-  role          String    @default("CLIENT") // "ADMIN" or "CLIENT"
+  role          String    @default("CLIENT") // "ADMIN", "EDITOR", or "CLIENT"
   profile_image String?
+  address       String?
+  contact_phone String?
+  editor_type   String?
+  charges       String?
+  bio           String?
+  instagram     String?
+  youtube       String?
+  website       String?
+  other_link    String?
   created_at    DateTime  @default(now())
   favorites     Favorite[]
+  galleries     Gallery[]
+  reviewsGiven  Review[]  @relation("ReviewsGiven")
+  reviewsReceived Review[] @relation("ReviewsReceived")
 }
 
 model Gallery {
@@ -24,10 +36,14 @@ model Gallery {
   description  String?
   price        String?
   before_image String
-  after_image  String
+  after_image  String?
+  work_type    String?   @default("Photography") // "Photography" or "Video"
+  work_category String?  // e.g. "Wedding", "Cinematic"
+  video_url    String?
   category_id  Int?
   category     Category? @relation(fields: [category_id], references: [id])
   created_by   Int
+  creator      User      @relation(fields: [created_by], references: [id])
   created_at   DateTime  @default(now())
   updated_at   DateTime  @updatedAt
   favorites    Favorite[]
@@ -55,5 +71,16 @@ model ContactMessage {
   name       String
   email      String
   message    String
+  created_at DateTime @default(now())
+}
+
+model Review {
+  id         Int      @id @default(autoincrement())
+  rating     Int      // 1-5 stars
+  comment    String?
+  client_id  Int
+  client     User     @relation("ReviewsGiven", fields: [client_id], references: [id])
+  editor_id  Int
+  editor     User     @relation("ReviewsReceived", fields: [editor_id], references: [id])
   created_at DateTime @default(now())
 }

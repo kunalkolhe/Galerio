@@ -7,11 +7,13 @@ export default {
   theme: {
     extend: {
       colors: {
-        'brand-black': '#0A0A0A',
-        'brand-gray': '#1A1A1A',
-        'brand-gold': '#D4AF37',
-        'brand-white': '#FFFFFF',
-      }
+        brand: {
+          black: '#050505',
+          gold: '#EC4899', // Reusing the 'gold' variable name but making it vibrant pink
+          white: '#ffffff',
+          gray: '#1f2937'
+        }
+      },
     },
   },
   plugins: [],
