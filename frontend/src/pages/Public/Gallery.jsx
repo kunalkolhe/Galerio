@@ -155,7 +155,7 @@ const Gallery = () => {
                   <div 
                     className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-between p-8 pointer-events-none opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300"
                   >
-                    <div className="flex justify-end transform translate-y-0 lg:-translate-y-4 lg:group-hover:translate-y-0 transition-transform duration-400 ease-out pointer-events-auto">
+                    <div className="flex justify-end transform translate-y-0 lg:-translate-y-4 lg:group-hover:translate-y-0 transition-transform duration-400 ease-out pointer-events-auto relative z-30">
                       <button 
                         onClick={(e) => { e.stopPropagation(); setSelectedMedia(item); }}
                         className="w-10 h-10 rounded-full bg-surface-1/50 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-accent hover:border-accent transition-colors shadow-xl"
@@ -164,7 +164,7 @@ const Gallery = () => {
                       </button>
                     </div>
 
-                    <div className="transform translate-y-0 lg:translate-y-4 lg:group-hover:translate-y-0 transition-transform duration-400 ease-out pointer-events-auto">
+                    <div className="transform translate-y-0 lg:translate-y-4 lg:group-hover:translate-y-0 transition-transform duration-400 ease-out pointer-events-auto relative z-30">
                       <div className="flex items-center gap-3 mb-3">
                         {item.work_type === 'Video' ? <Video className="w-5 h-5 text-accent" /> : 
                          item.work_type === 'LUTs' ? <Layers className="w-5 h-5 text-accent" /> : 
