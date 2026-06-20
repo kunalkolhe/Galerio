@@ -4,6 +4,12 @@
 
 @layer base {
   body {
-    @apply bg-brand-black text-brand-white font-sans antialiased;
+    @apply bg-base text-primary font-sans antialiased selection:bg-accent/30 selection:text-primary;
+  }
+}
+
+@layer utilities {
+  .cinematic-shadow {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   }
 }

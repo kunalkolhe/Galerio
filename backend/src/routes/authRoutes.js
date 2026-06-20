@@ -3,6 +3,26 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import prisma from '../db.js';
 import authMiddleware from '../middleware/auth.js';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const dir = 'uploads/';
+    if (!fs.existsSync(dir)){
+        fs.mkdirSync(dir);
+    }
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, 'profile-' + Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(file.originalname));
+  }
+});
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit for profile pictures
+});
 
 const router = express.Router();
 
@@ -55,12 +75,16 @@ router.get('/profile', authMiddleware, async (req, res) => {
   }
 });
 
-router.put('/profile', authMiddleware, async (req, res) => {
-  let { name, address, contact_phone, editor_type, charges, bio, instagram, youtube, website, other_link } = req.body;
+router.put('/profile', authMiddleware, upload.single('profile_image'), async (req, res) => {
+  let { name, address, contact_phone, editor_type, charges, bio, instagram, youtube, website, other_link, remove_profile_image } = req.body;
   try {
     // Process bio into paragraphs if it's not already
     if (bio && typeof bio === 'string') {
-      bio = JSON.stringify(bio.split('\n').filter(p => p.trim()));
+      try {
+        JSON.parse(bio); // Test if it's already a JSON array
+      } catch {
+        bio = JSON.stringify(bio.split('\n').filter(p => p.trim()));
+      }
     }
 
     const updateData = {
@@ -76,13 +100,45 @@ router.put('/profile', authMiddleware, async (req, res) => {
       other_link
     };
 
+    if (remove_profile_image === 'true' || remove_profile_image === true) {
+      updateData.profile_image = null;
+    } else if (req.file) {
+      updateData.profile_image = '/uploads/' + req.file.filename;
+    }
+
     const user = await prisma.user.update({
       where: { id: req.user.userId },
       data: updateData,
-      select: { id: true, name: true, email: true, role: true, address: true, contact_phone: true, editor_type: true, charges: true, bio: true, instagram: true, youtube: true, website: true, other_link: true }
+      select: { id: true, name: true, email: true, role: true, address: true, contact_phone: true, editor_type: true, charges: true, bio: true, instagram: true, youtube: true, website: true, other_link: true, profile_image: true }
     });
     res.json(user);
   } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message, stack: err.stack });
+  }
+});
+
+router.put('/password', authMiddleware, async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ error: 'Current and new password are required' });
+  }
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.user.userId } });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const valid = await bcrypt.compare(currentPassword, user.password_hash);
+    if (!valid) return res.status(400).json({ error: 'Incorrect current password' });
+
+    const password_hash = await bcrypt.hash(newPassword, 10);
+    await prisma.user.update({
+      where: { id: req.user.userId },
+      data: { password_hash }
+    });
+
+    res.json({ message: 'Password updated successfully' });
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ error: err.message });
   }
 });

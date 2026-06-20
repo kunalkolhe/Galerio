@@ -17,9 +17,9 @@ import Contact from './pages/Public/Contact';
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-brand-black text-brand-white flex flex-col font-sans">
+      <div className="min-h-screen flex flex-col">
         <Navbar />
-        <main className="flex-grow selection:bg-brand-gold selection:text-brand-black">
+        <main className="flex-grow selection:bg-accent selection:text-base">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/gallery" element={<Gallery />} />

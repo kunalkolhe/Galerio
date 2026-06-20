@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Camera, Menu, X, User, LogOut } from 'lucide-react';
+import { Camera, Menu, X, User, LogOut, LayoutDashboard, PlusCircle, Settings } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -13,6 +15,12 @@ const Navbar = () => {
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
+
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const handleLogout = () => {
@@ -26,27 +34,30 @@ const Navbar = () => {
     { name: 'Home', path: '/' },
     { name: 'Gallery', path: '/gallery' },
     { name: 'About', path: '/about' },
-    { name: 'Contact', path: '/contact' },
+    { name: 'Contact Us', path: '/contact' },
   ];
 
   return (
-    <nav className="fixed w-full z-50 top-0 transition-all duration-300 bg-brand-black/90 backdrop-blur-md border-b border-brand-gray">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-20 items-center">
+    <nav className={`fixed w-full z-50 top-0 transition-all duration-500 ${
+      scrolled ? 'bg-base/70 backdrop-blur-xl border-b border-surface-2 shadow-[0_4px_30px_rgba(0,0,0,0.5)]' : 'bg-transparent border-b border-transparent'
+    }`}>
+      <div className="max-w-7xl mx-auto px-6 lg:px-12">
+        <div className="flex justify-between h-24 items-center">
           <div className="flex-shrink-0 flex items-center">
-            <Link to="/" className="flex items-center gap-2 group">
-              <Camera className="w-8 h-8 text-brand-gold group-hover:scale-110 transition-transform" />
-              <span className="font-bold text-xl tracking-wider text-brand-white">Galerio</span>
+            <Link to="/" className="flex items-center gap-3 group">
+              <span className="font-display font-medium text-2xl tracking-tight text-primary transition-colors group-hover:text-accent">
+                Galerio.
+              </span>
             </Link>
           </div>
           
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-12">
             {links.map((link) => (
               <Link
                 key={link.name}
                 to={link.path}
-                className={`text-sm font-medium tracking-wide transition-colors hover:text-brand-gold ${
-                  location.pathname === link.path ? 'text-brand-gold' : 'text-gray-300'
+                className={`text-xs uppercase tracking-widest font-medium transition-colors ${
+                  location.pathname === link.path ? 'text-primary' : 'text-secondary hover:text-primary'
                 }`}
               >
                 {link.name}
@@ -54,43 +65,50 @@ const Navbar = () => {
             ))}
             {user ? (
               <div className="relative group">
-                <div className="flex items-center gap-4 border-l border-brand-gray pl-4 cursor-pointer">
-                  <div className="flex items-center gap-2 text-brand-white">
-                    <div className="w-8 h-8 rounded-full bg-brand-gold/20 flex items-center justify-center border border-brand-gold">
-                      <User className="w-4 h-4 text-brand-gold" />
-                    </div>
+                <div className="flex items-center gap-4 cursor-pointer">
+                  <div className="flex items-center gap-3 text-primary transition-colors hover:text-accent">
                     <span className="text-sm font-medium">{user.name}</span>
+                    <div className="w-8 h-8 rounded-full bg-surface-2 flex items-center justify-center">
+                      <User className="w-4 h-4 text-secondary" />
+                    </div>
                   </div>
                 </div>
                 
                 {/* Dropdown Menu */}
-                <div className="absolute right-0 mt-2 w-48 bg-brand-black border border-brand-gray rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 overflow-hidden pt-1">
-                  <Link to="/editor" className="block px-4 py-3 text-sm text-gray-300 hover:text-brand-gold hover:bg-brand-gray/50 border-b border-brand-gray/30">
-                    Editor Dashboard
+                <div className="absolute right-0 mt-4 w-56 bg-surface-1 border border-surface-2 shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 overflow-hidden rounded-sm">
+                  {(user.role?.toUpperCase() === 'EDITOR' || user.role?.toUpperCase() === 'ADMIN') && (
+                    <>
+                      <Link to="/editor" className="px-5 py-4 text-sm text-secondary hover:text-primary hover:bg-surface-2 transition-colors flex items-center gap-3">
+                        <LayoutDashboard className="w-4 h-4" /> Dashboard
+                      </Link>
+                      <Link to="/upload" className="px-5 py-4 text-sm text-secondary hover:text-primary hover:bg-surface-2 transition-colors flex items-center gap-3">
+                        <PlusCircle className="w-4 h-4" /> Add Work
+                      </Link>
+                    </>
+                  )}
+                  <Link to="/settings" className="px-5 py-4 text-sm text-secondary hover:text-primary hover:bg-surface-2 transition-colors flex items-center gap-3">
+                    <Settings className="w-4 h-4" /> Settings
                   </Link>
-                  <Link to="/upload" className="block px-4 py-3 text-sm text-gray-300 hover:text-brand-gold hover:bg-brand-gray/50 border-b border-brand-gray/30">
-                    Add Work
-                  </Link>
-                  <Link to="/settings" className="block px-4 py-3 text-sm text-gray-300 hover:text-brand-gold hover:bg-brand-gray/50 border-b border-brand-gray/30">
-                    Settings
-                  </Link>
+                  <div className="border-t border-surface-2"></div>
                   <button
                     onClick={handleLogout}
-                    className="w-full text-left px-4 py-3 text-sm text-red-400 hover:text-red-500 hover:bg-red-500/10 transition-colors flex items-center justify-between"
+                    className="w-full text-left px-5 py-4 text-sm text-secondary hover:text-accent hover:bg-surface-2 transition-colors flex items-center gap-3"
                   >
-                    Logout <LogOut className="w-4 h-4" />
+                    <LogOut className="w-4 h-4" /> Logout
                   </button>
                 </div>
               </div>
             ) : (
-              <Link to="/login" className="px-5 py-2 rounded-full bg-transparent border border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-brand-black transition-all text-sm font-medium">
-                Editor Login
-              </Link>
+              <motion.div whileHover={{ scale: 0.98 }} whileTap={{ scale: 0.95 }}>
+                <Link to="/register" className="px-6 py-3 bg-surface-1 border border-surface-2 text-primary hover:text-accent hover:border-accent/50 hover:shadow-[0_0_15px_rgba(217,119,6,0.2)] transition-all duration-300 text-xs uppercase tracking-widest font-medium">
+                  Get Started
+                </Link>
+              </motion.div>
             )}
           </div>
 
           <div className="md:hidden flex items-center">
-            <button onClick={() => setIsOpen(!isOpen)} className="text-gray-300 hover:text-brand-gold">
+            <button onClick={() => setIsOpen(!isOpen)} className="text-secondary hover:text-primary transition-colors">
               {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
@@ -98,62 +116,69 @@ const Navbar = () => {
       </div>
 
       {/* Mobile Menu */}
-      {isOpen && (
-        <div className="md:hidden bg-brand-black border-b border-brand-gray absolute w-full">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            {links.map((link) => (
-              <Link
-                key={link.name}
-                to={link.path}
-                onClick={() => setIsOpen(false)}
-                className={`block px-3 py-2 rounded-md text-base font-medium ${
-                  location.pathname === link.path ? 'text-brand-gold bg-brand-gray/50' : 'text-gray-300 hover:text-brand-gold hover:bg-brand-gray/30'
-                }`}
-              >
-                {link.name}
-              </Link>
-            ))}
-            {user ? (
-              <div className="border-t border-brand-gray mt-4 pt-4 px-3">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-full bg-brand-gold/20 flex items-center justify-center border border-brand-gold">
-                    <User className="w-5 h-5 text-brand-gold" />
-                  </div>
-                  <div>
-                    <p className="text-brand-white font-medium">{user.name}</p>
-                    <p className="text-xs text-gray-400">{user.email}</p>
-                  </div>
-                </div>
-                <div className="space-y-2 mb-4">
-                  <Link to="/editor" onClick={() => setIsOpen(false)} className="block w-full px-4 py-2 text-sm text-gray-300 hover:text-brand-gold hover:bg-brand-gray/50 rounded">
-                    Editor Dashboard
-                  </Link>
-                  <Link to="/upload" onClick={() => setIsOpen(false)} className="block w-full px-4 py-2 text-sm text-gray-300 hover:text-brand-gold hover:bg-brand-gray/50 rounded">
-                    Add Work
-                  </Link>
-                  <Link to="/settings" onClick={() => setIsOpen(false)} className="block w-full px-4 py-2 text-sm text-gray-300 hover:text-brand-gold hover:bg-brand-gray/50 rounded">
-                    Settings
-                  </Link>
-                </div>
-                <button
-                  onClick={() => { setIsOpen(false); handleLogout(); }}
-                  className="w-full flex items-center justify-center gap-2 text-center px-5 py-3 rounded border border-red-500 text-red-500 font-medium hover:bg-red-500/10 transition-colors"
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="md:hidden bg-surface-1 border-b border-surface-2 absolute w-full shadow-2xl"
+          >
+            <div className="px-6 py-8 space-y-6">
+              {links.map((link) => (
+                <Link
+                  key={link.name}
+                  to={link.path}
+                  onClick={() => setIsOpen(false)}
+                  className={`block text-lg font-display tracking-wide ${
+                    location.pathname === link.path ? 'text-accent' : 'text-primary'
+                  }`}
                 >
-                  <LogOut className="w-5 h-5" /> Logout
-                </button>
-              </div>
-            ) : (
-              <Link
-                to="/login"
-                onClick={() => setIsOpen(false)}
-                className="block w-full text-center mt-4 px-5 py-3 rounded bg-brand-gold text-brand-black font-medium"
-              >
-                Client Login
-              </Link>
-            )}
-          </div>
-        </div>
-      )}
+                  {link.name}
+                </Link>
+              ))}
+              {user ? (
+                <div className="border-t border-surface-2 pt-6 mt-6">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-12 h-12 rounded-full bg-surface-2 flex items-center justify-center">
+                      <User className="w-5 h-5 text-secondary" />
+                    </div>
+                    <div>
+                      <p className="text-primary font-display text-lg">{user.name}</p>
+                      <p className="text-sm text-secondary">{user.email}</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2 mb-6">
+                    {(user.role?.toUpperCase() === 'EDITOR' || user.role?.toUpperCase() === 'ADMIN') && (
+                      <>
+                        <Link to="/editor" onClick={() => setIsOpen(false)} className="px-4 py-3 rounded-sm flex items-center gap-3 text-secondary hover:text-primary hover:bg-surface-2 transition-colors"><LayoutDashboard className="w-4 h-4"/> Dashboard</Link>
+                        <Link to="/upload" onClick={() => setIsOpen(false)} className="px-4 py-3 rounded-sm flex items-center gap-3 text-secondary hover:text-primary hover:bg-surface-2 transition-colors"><PlusCircle className="w-4 h-4"/> Add Work</Link>
+                      </>
+                    )}
+                    <Link to="/settings" onClick={() => setIsOpen(false)} className="px-4 py-3 rounded-sm flex items-center gap-3 text-secondary hover:text-primary hover:bg-surface-2 transition-colors"><Settings className="w-4 h-4"/> Settings</Link>
+                  </div>
+                  <div className="border-t border-surface-2 pt-4">
+                    <button
+                      onClick={() => { setIsOpen(false); handleLogout(); }}
+                      className="w-full flex items-center justify-center gap-3 text-center px-5 py-4 border border-surface-2 text-secondary hover:text-accent hover:border-accent/50 transition-colors uppercase text-xs tracking-widest font-medium"
+                    >
+                      <LogOut className="w-4 h-4" /> Logout
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <Link
+                  to="/register"
+                  onClick={() => setIsOpen(false)}
+                  className="block w-full text-center mt-6 px-5 py-4 bg-surface-2 text-primary hover:text-accent border border-surface-2 transition-colors uppercase text-xs tracking-widest font-medium"
+                >
+                  Get Started
+                </Link>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 };

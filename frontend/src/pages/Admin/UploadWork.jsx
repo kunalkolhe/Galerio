@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { Upload, Image as ImageIcon, Video, Film } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const PHOTO_CATEGORIES = ["Portrait", "Wedding", "Commercial", "Landscape", "Fashion", "Real Estate", "Other"];
-const VIDEO_CATEGORIES = ["Cinematic", "Music Video", "Commercial", "Wedding Film", "Vlog", "Documentary", "Other"];
-const LUT_CATEGORIES = ["Cinematic LUT", "Vintage LUT", "B&W LUT", "Wedding LUT", "Moody LUT", "Other"];
+const CATEGORIES = [
+  "Cinematic", "Wedding", "Portrait", "Commercial / Brand", "Fashion", 
+  "Travel", "Music Video", "Social Media Content", "Black & White", "Color Grading"
+];
 
 const UploadWork = () => {
   const navigate = useNavigate();
@@ -13,11 +14,11 @@ const UploadWork = () => {
     title: '',
     description: '',
     price: '',
-    work_category: VIDEO_CATEGORIES[0]
+    work_category: CATEGORIES[0]
   });
   
-  const [beforeImage, setBeforeImage] = useState(null); // primary file
-  const [afterImage, setAfterImage] = useState(null);   // optional secondary file (for LUTs)
+  const [beforeImage, setBeforeImage] = useState(null);
+  const [afterImage, setAfterImage] = useState(null);
   const [beforePreview, setBeforePreview] = useState(null);
   const [afterPreview, setAfterPreview] = useState(null);
   const [status, setStatus] = useState('');
@@ -30,17 +31,8 @@ const UploadWork = () => {
   const handleWorkTypeChange = (e) => {
     const type = e.target.value;
     setWorkType(type);
-    
-    let defaultCat = PHOTO_CATEGORIES[0];
-    if (type === 'Video') defaultCat = VIDEO_CATEGORIES[0];
-    if (type === 'LUTs') defaultCat = LUT_CATEGORIES[0];
+    setFormData({ ...formData, work_category: CATEGORIES[0] });
 
-    setFormData({ 
-      ...formData, 
-      work_category: defaultCat 
-    });
-
-    // Reset files when switching types
     setBeforeImage(null);
     setAfterImage(null);
     setBeforePreview(null);
@@ -52,11 +44,10 @@ const UploadWork = () => {
       const file = e.target.files[0];
       if (type === 'before') {
         setBeforeImage(file);
-        // Only generate image preview if it's an image
-        if (file.type.startsWith('image/')) {
-          setBeforePreview(URL.createObjectURL(file));
-        } else if (file.type.startsWith('video/')) {
+        if (workType === 'Video') {
           setBeforePreview('VIDEO');
+        } else {
+          setBeforePreview(URL.createObjectURL(file));
         }
       }
       if (type === 'after') {
@@ -69,17 +60,17 @@ const UploadWork = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!beforeImage || !formData.title) {
-      setStatus('Please provide a Title and upload your file.');
+      setStatus('Add a Title and upload your file.');
       return;
     }
     
     if (workType === 'LUTs' && !afterImage) {
-      setStatus('LUTs require both a "Before" and an "After" image.');
+      setStatus('LUTs need a "Before" and "After" image.');
       return;
     }
 
     setIsUploading(true);
-    setStatus('Uploading... This might take a moment for video files.');
+    setStatus('Uploading...');
     
     const data = new FormData();
     data.append('title', formData.title);
@@ -103,7 +94,7 @@ const UploadWork = () => {
       });
       
       if (response.ok) {
-        setStatus('Successfully uploaded!');
+        setStatus('Uploaded successfully!');
         setTimeout(() => navigate('/editor'), 1500);
       } else {
         const errorData = await response.json();
@@ -116,92 +107,90 @@ const UploadWork = () => {
     }
   };
 
-  const currentCategories = 
-    workType === 'Video' ? VIDEO_CATEGORIES : 
-    workType === 'Photography' ? PHOTO_CATEGORIES : 
-    LUT_CATEGORIES;
+  const inputClass = "w-full bg-surface-2 border border-surface-2 rounded-sm px-4 py-3 text-primary placeholder-secondary focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all";
 
   return (
-    <div className="pt-24 pb-16 min-h-screen">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-4xl font-bold text-brand-gold mb-2">Add Portfolio Work</h1>
-        <p className="text-gray-400 mb-8">Upload your best Video, Photography, or LUT transformations.</p>
+    <div className="pt-32 pb-16 min-h-screen bg-base">
+      <div className="max-w-4xl mx-auto px-6 lg:px-8">
+        <h1 className="text-4xl md:text-5xl font-display text-primary mb-4">Add Portfolio Work</h1>
+        <p className="text-secondary text-lg mb-10">Upload your portfolio work.</p>
 
-        <form onSubmit={handleSubmit} className="bg-[#080808] border border-brand-gray p-8 rounded-2xl space-y-6 shadow-2xl">
+        <form onSubmit={handleSubmit} className="bg-surface-1 border border-surface-2 p-8 rounded-sm space-y-8 cinematic-shadow">
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b border-brand-gray">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-brand-white">Work Type *</label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pb-8 border-b border-surface-2">
+            <div className="space-y-3">
+              <label className="text-sm font-medium tracking-wide text-primary">Work Type *</label>
               <select 
                 value={workType} 
                 onChange={handleWorkTypeChange}
-                className="w-full bg-brand-black border border-brand-gray rounded-lg px-4 py-3 text-brand-white focus:outline-none focus:border-brand-gold appearance-none"
+                className={`${inputClass} appearance-none cursor-pointer [&>option]:bg-surface-2 [&>option]:text-primary`}
               >
                 <option value="Video">Video Work</option>
-                <option value="Photography">Photography Work</option>
-                <option value="LUTs">LUTs (Before & After)</option>
+                <option value="Photography">Photo Editing</option>
+                <option value="LUTs">LUT / Color Grading</option>
+                <option value="Retouching">Retouching</option>
               </select>
             </div>
             
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-brand-white">Category *</label>
+            <div className="space-y-3">
+              <label className="text-sm font-medium tracking-wide text-primary">Category *</label>
               <select 
                 name="work_category"
                 value={formData.work_category} 
                 onChange={handleInputChange}
-                className="w-full bg-brand-black border border-brand-gray rounded-lg px-4 py-3 text-brand-white focus:outline-none focus:border-brand-gold appearance-none"
+                className={`${inputClass} appearance-none cursor-pointer [&>option]:bg-surface-2 [&>option]:text-primary`}
               >
-                {currentCategories.map(cat => (
+                {CATEGORIES.map(cat => (
                   <option key={cat} value={cat}>{cat}</option>
                 ))}
               </select>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-brand-white">Project Title *</label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-3">
+              <label className="text-sm font-medium tracking-wide text-primary">Project Title *</label>
               <input 
                 type="text" 
                 name="title" 
                 value={formData.title} 
                 onChange={handleInputChange}
-                className="w-full bg-brand-black border border-brand-gray rounded-lg px-4 py-3 text-brand-white focus:outline-none focus:border-brand-gold"
+                className={inputClass}
                 placeholder="e.g. Cinematic Wedding Edit"
                 required
               />
             </div>
             
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-brand-white">Editing Price / Rate</label>
+            <div className="space-y-3">
+              <label className="text-sm font-medium tracking-wide text-primary">Rate</label>
               <input 
                 type="text" 
                 name="price" 
                 value={formData.price} 
                 onChange={handleInputChange}
-                className="w-full bg-brand-black border border-brand-gray rounded-lg px-4 py-3 text-brand-white focus:outline-none focus:border-brand-gold"
+                className={inputClass}
                 placeholder="e.g. $150 per project"
               />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-brand-white">Description</label>
+          <div className="space-y-3">
+            <label className="text-sm font-medium tracking-wide text-primary">Description</label>
             <textarea 
               name="description" 
               value={formData.description} 
               onChange={handleInputChange}
               rows="3"
-              className="w-full bg-brand-black border border-brand-gray rounded-lg px-4 py-3 text-brand-white focus:outline-none focus:border-brand-gold"
-              placeholder="Describe the editing process..."
+              className={inputClass}
+              placeholder="Describe your work."
             ></textarea>
           </div>
 
           {/* Upload Areas */}
-          <div className={`grid grid-cols-1 ${workType === 'LUTs' ? 'md:grid-cols-2' : ''} gap-6 pt-4`}>
+          <div className={`grid grid-cols-1 ${workType === 'LUTs' ? 'md:grid-cols-2' : ''} gap-8 pt-4`}>
             
-            {/* Main Upload Box (Video, Photo, or Before LUT) */}
-            <div className="border-2 border-dashed border-brand-gray hover:border-brand-gold/50 rounded-xl p-8 flex flex-col items-center justify-center relative transition-colors overflow-hidden min-h-[250px] bg-brand-black">
+            {/* Main Upload Box */}
+            <div className="border-2 border-dashed border-surface-2 hover:border-accent/50 rounded-sm p-8 flex flex-col items-center justify-center relative transition-colors overflow-hidden min-h-[250px] bg-surface-2 group">
               <input 
                 type="file" 
                 accept={workType === 'Video' ? "video/*" : "image/*"}
@@ -211,24 +200,24 @@ const UploadWork = () => {
               />
               
               {beforePreview === 'VIDEO' ? (
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-brand-gold/10">
-                  <Film className="w-16 h-16 text-brand-gold mb-2" />
-                  <p className="text-brand-gold font-bold">Video Selected</p>
-                  <p className="text-xs text-gray-300 mt-1">{beforeImage.name}</p>
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-surface-1">
+                  <Film className="w-16 h-16 text-accent mb-4" />
+                  <p className="text-primary font-medium tracking-wide">Video Selected</p>
+                  <p className="text-xs text-secondary mt-2 truncate px-4">{beforeImage.name}</p>
                 </div>
               ) : beforePreview ? (
                 <img src={beforePreview} alt="Preview" className="absolute inset-0 w-full h-full object-cover opacity-80" />
               ) : null}
 
-              <div className={`flex flex-col items-center text-center space-y-3 pointer-events-none z-20 ${beforePreview ? 'bg-black/60 p-4 rounded-xl backdrop-blur-sm' : ''}`}>
-                {workType === 'Video' ? <Video className="w-12 h-12 text-gray-400" /> : <ImageIcon className="w-12 h-12 text-gray-400" />}
+              <div className={`flex flex-col items-center text-center space-y-4 pointer-events-none z-20 ${beforePreview ? 'bg-surface-1/80 p-6 rounded-sm backdrop-blur-md border border-surface-2' : ''}`}>
+                {workType === 'Video' ? <Video className={`w-10 h-10 ${beforePreview ? 'text-accent' : 'text-secondary group-hover:text-accent'} transition-colors`} /> : <ImageIcon className={`w-10 h-10 ${beforePreview ? 'text-accent' : 'text-secondary group-hover:text-accent'} transition-colors`} />}
                 <div>
-                  <p className="text-brand-gold font-medium text-lg">
-                    {workType === 'Video' ? 'Upload Video File *' : 
+                  <p className={`font-medium tracking-wide ${beforePreview ? 'text-primary' : 'text-secondary group-hover:text-primary'} transition-colors`}>
+                    {workType === 'Video' ? 'Upload Video *' : 
                      workType === 'LUTs' ? 'Upload "Before" Image *' : 
                      'Upload Photo *'}
                   </p>
-                  <p className="text-sm text-gray-400 mt-2">
+                  <p className={`text-xs mt-2 ${beforePreview ? 'text-secondary' : 'text-surface-2 group-hover:text-secondary'} transition-colors`}>
                     {workType === 'Video' ? 'MP4, WebM (Max 50MB)' : 'PNG, JPG (Max 10MB)'}
                   </p>
                 </div>
@@ -237,7 +226,7 @@ const UploadWork = () => {
 
             {/* Optional After Image for LUTs */}
             {workType === 'LUTs' && (
-              <div className="border-2 border-dashed border-brand-gray hover:border-brand-gold/50 rounded-xl p-8 flex flex-col items-center justify-center relative transition-colors overflow-hidden min-h-[250px] bg-brand-black">
+              <div className="border-2 border-dashed border-surface-2 hover:border-accent/50 rounded-sm p-8 flex flex-col items-center justify-center relative transition-colors overflow-hidden min-h-[250px] bg-surface-2 group">
                 <input 
                   type="file" 
                   accept="image/*"
@@ -250,11 +239,11 @@ const UploadWork = () => {
                   <img src={afterPreview} alt="After preview" className="absolute inset-0 w-full h-full object-cover opacity-80" />
                 )}
 
-                <div className={`flex flex-col items-center text-center space-y-3 pointer-events-none z-20 ${afterPreview ? 'bg-black/60 p-4 rounded-xl backdrop-blur-sm' : ''}`}>
-                  <ImageIcon className="w-12 h-12 text-brand-gold/80" />
+                <div className={`flex flex-col items-center text-center space-y-4 pointer-events-none z-20 ${afterPreview ? 'bg-surface-1/80 p-6 rounded-sm backdrop-blur-md border border-surface-2' : ''}`}>
+                  <ImageIcon className={`w-10 h-10 ${afterPreview ? 'text-accent' : 'text-secondary group-hover:text-accent'} transition-colors`} />
                   <div>
-                    <p className="text-brand-gold font-medium text-lg">Upload "After" Image *</p>
-                    <p className="text-sm text-gray-400 mt-2">PNG, JPG (Max 10MB)</p>
+                    <p className={`font-medium tracking-wide ${afterPreview ? 'text-primary' : 'text-secondary group-hover:text-primary'} transition-colors`}>Upload "After" Image *</p>
+                    <p className={`text-xs mt-2 ${afterPreview ? 'text-secondary' : 'text-surface-2 group-hover:text-secondary'} transition-colors`}>PNG, JPG (Max 10MB)</p>
                   </div>
                 </div>
               </div>
@@ -262,19 +251,19 @@ const UploadWork = () => {
           </div>
 
           {status && (
-            <div className={`p-4 rounded-lg font-medium ${status.includes('failed') || status.includes('Error') ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-brand-gold/10 text-brand-gold border border-brand-gold/20'}`}>
+            <div className={`p-4 rounded-sm text-sm font-medium ${status.includes('failed') || status.includes('Error') ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-accent/10 text-accent border border-accent/20'}`}>
               {status}
             </div>
           )}
 
-          <div className="pt-6 border-t border-brand-gray">
+          <div className="pt-8 border-t border-surface-2">
             <button 
               type="submit" 
               disabled={isUploading}
-              className={`w-full bg-brand-gold text-brand-black font-bold text-lg rounded-lg px-4 py-4 flex items-center justify-center gap-3 transition-colors ${isUploading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-yellow-400'}`}
+              className={`w-full bg-accent text-base font-medium tracking-widest uppercase text-sm rounded-sm px-4 py-4 flex items-center justify-center gap-3 transition-colors ${isUploading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-yellow-400'}`}
             >
-              {workType === 'Video' ? <Film className="w-6 h-6" /> : <Upload className="w-6 h-6" />} 
-              {isUploading ? 'Uploading...' : 'Publish to Portfolio'}
+              {workType === 'Video' ? <Film className="w-5 h-5" /> : <Upload className="w-5 h-5" />} 
+              {isUploading ? 'Uploading...' : 'Upload'}
             </button>
           </div>
         </form>
