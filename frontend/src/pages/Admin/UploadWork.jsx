@@ -85,7 +85,7 @@ const UploadWork = () => {
     }
 
     try {
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || `http://${window.location.hostname}:5000`;
+      const API_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
       const token = localStorage.getItem('token');
       const response = await fetch(`${API_BASE_URL}/api/gallery`, {
         method: 'POST',
