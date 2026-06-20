@@ -38,14 +38,13 @@ Secure authentication using JWTs and bcrypt:
 - **Framer Motion** (for smooth animations and 3D tilt effects)
 - **React Router** (for navigation)
 - **React Player** (for seamless video integration)
-- **Lucide React** (for crisp SVG icons)
 - **React Masonry CSS** (for the dynamic gallery grid)
 
 ### Backend
 - **Node.js & Express.js**
 - **Prisma ORM** (Database management and schema)
-- **PostgreSQL** (Relational database)
-- **Multer** (Handling multipart/form-data for direct image and video uploads)
+- **Supabase (PostgreSQL)** (Cloud relational database)
+- **Cloudinary** (Secure cloud storage for image and video uploads)
 - **JWT & bcrypt** (Authentication and password hashing)
 
 ---
@@ -54,7 +53,8 @@ Secure authentication using JWTs and bcrypt:
 
 ### Prerequisites
 - [Node.js](https://nodejs.org/) installed
-- A running [PostgreSQL](https://www.postgresql.org/) database server
+- A running [PostgreSQL](https://www.postgresql.org/) database or [Supabase](https://supabase.com) account
+- A [Cloudinary](https://cloudinary.com) account for media uploads
 
 ### 1. Database & Backend Setup
 Navigate to the `backend` directory:
@@ -63,10 +63,13 @@ cd backend
 npm install
 ```
 
-Create a `.env` file in the `backend` folder and add your database URL:
+Create a `.env` file in the `backend` folder and add your keys:
 ```env
 DATABASE_URL="postgresql://USERNAME:PASSWORD@localhost:5432/photogallery"
 JWT_SECRET="your_secret_key"
+CLOUDINARY_CLOUD_NAME="your_cloud_name"
+CLOUDINARY_API_KEY="your_api_key"
+CLOUDINARY_API_SECRET="your_api_secret"
 ```
 
 Push the database schema and start the server:
@@ -89,6 +92,26 @@ Start the Vite development server:
 npm run dev
 ```
 The frontend will start on `http://localhost:5173`.
+
+---
+
+## ☁️ Vercel Deployment
+
+This project is configured as a Monorepo ready for zero-config Vercel deployment. 
+
+1. Import the repository into Vercel.
+2. In the **Build and Output Settings**, override the defaults with:
+   - **Build Command:** `npm run build`
+   - **Output Directory:** `frontend/dist`
+   - **Install Command:** `npm run install:all`
+3. Add your Environment Variables:
+   - `DATABASE_URL` *(ensure `?pgbouncer=true` is appended if using a Supabase connection pooler)*
+   - `JWT_SECRET`
+   - `CLOUDINARY_CLOUD_NAME`
+   - `CLOUDINARY_API_KEY`
+   - `CLOUDINARY_API_SECRET`
+   - `VITE_API_BASE_URL` *(set this to your Vercel URL, e.g., `https://galerio.vercel.app`)*
+4. Click Deploy! Vercel will automatically build the React app and deploy the Express API as a Serverless Function.
 
 ---
 
