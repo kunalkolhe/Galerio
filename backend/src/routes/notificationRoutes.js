@@ -34,7 +34,7 @@ router.put('/:id/read', authMiddleware, async (req, res) => {
 // This does not require authMiddleware since clients might not be logged in to send a request, 
 // or if they are, we can still just take their info from the body.
 router.post('/hire', async (req, res) => {
-  const { editor_id, content, from_name, from_email } = req.body;
+  const { editor_id, content, from_name, from_email, from_phone } = req.body;
   if (!editor_id || !content || !from_name || !from_email) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
@@ -46,7 +46,8 @@ router.post('/hire', async (req, res) => {
         type: 'HIRE_REQUEST',
         content,
         from_name,
-        from_email
+        from_email,
+        from_phone
       }
     });
     res.status(201).json({ message: 'Request sent successfully!', notification });

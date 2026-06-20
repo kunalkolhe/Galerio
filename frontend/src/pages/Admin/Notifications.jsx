@@ -92,9 +92,11 @@ const Notifications = () => {
                 
                 <div className="mb-6">
                   {notification.from_name && (
-                    <p className="text-sm text-secondary mb-1">
-                      From: <span className="text-primary font-medium">{notification.from_name}</span> ({notification.from_email})
-                    </p>
+                    <div className="text-sm text-secondary mb-1">
+                      From: <span className="text-primary font-medium">{notification.from_name}</span> 
+                      {notification.from_email && <span> ({notification.from_email})</span>}
+                      {notification.from_phone && <span> | Phone: {notification.from_phone}</span>}
+                    </div>
                   )}
                   <p className="text-primary leading-relaxed whitespace-pre-wrap">{notification.content}</p>
                 </div>

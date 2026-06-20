@@ -24,7 +24,7 @@ const EditorProfile = () => {
   const [reviewError, setReviewError] = useState('');
 
   // Hire form state
-  const [hireDetails, setHireDetails] = useState({ name: '', email: '', message: '' });
+  const [hireDetails, setHireDetails] = useState({ name: '', email: '', phone: '', message: '' });
   const [isSubmittingHire, setIsSubmittingHire] = useState(false);
   const [hireStatus, setHireStatus] = useState('');
 
@@ -106,13 +106,14 @@ const EditorProfile = () => {
           editor_id: parseInt(id), 
           content: hireDetails.message, 
           from_name: hireDetails.name, 
-          from_email: hireDetails.email 
+          from_email: hireDetails.email,
+          from_phone: hireDetails.phone 
         })
       });
 
       if (response.ok) {
         setHireStatus('success');
-        setHireDetails({ name: '', email: '', message: '' });
+        setHireDetails({ name: '', email: '', phone: '', message: '' });
         setTimeout(() => {
           setShowHireModal(false);
           setHireStatus('');
@@ -568,7 +569,7 @@ const EditorProfile = () => {
             <form onSubmit={submitHireRequest} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="text-xs uppercase tracking-widest font-medium text-secondary block mb-3">Your Name</label>
+                  <label className="text-xs uppercase tracking-widest font-medium text-secondary block mb-3">Your Name *</label>
                   <input 
                     type="text" required
                     value={hireDetails.name} onChange={(e) => setHireDetails({...hireDetails, name: e.target.value})}
@@ -577,7 +578,7 @@ const EditorProfile = () => {
                   />
                 </div>
                 <div>
-                  <label className="text-xs uppercase tracking-widest font-medium text-secondary block mb-3">Your Email</label>
+                  <label className="text-xs uppercase tracking-widest font-medium text-secondary block mb-3">Your Email *</label>
                   <input 
                     type="email" required
                     value={hireDetails.email} onChange={(e) => setHireDetails({...hireDetails, email: e.target.value})}
@@ -586,9 +587,19 @@ const EditorProfile = () => {
                   />
                 </div>
               </div>
+
+              <div>
+                <label className="text-xs uppercase tracking-widest font-medium text-secondary block mb-3">Your Phone Number (Optional)</label>
+                <input 
+                  type="tel"
+                  value={hireDetails.phone} onChange={(e) => setHireDetails({...hireDetails, phone: e.target.value})}
+                  className="w-full bg-base border border-surface-2 rounded-sm px-4 py-3 text-primary focus:outline-none focus:border-accent/50 transition-all text-sm"
+                  placeholder="+1 (555) 000-0000"
+                />
+              </div>
               
               <div>
-                <label className="text-xs uppercase tracking-widest font-medium text-secondary block mb-3">Project Details & Budget</label>
+                <label className="text-xs uppercase tracking-widest font-medium text-secondary block mb-3">Project Details & Budget *</label>
                 <textarea 
                   required rows="5"
                   value={hireDetails.message} onChange={(e) => setHireDetails({...hireDetails, message: e.target.value})}
