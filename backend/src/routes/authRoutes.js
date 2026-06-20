@@ -3,26 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import prisma from '../db.js';
 import authMiddleware from '../middleware/auth.js';
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const dir = 'uploads/';
-    if (!fs.existsSync(dir)){
-        fs.mkdirSync(dir);
-    }
-    cb(null, dir);
-  },
-  filename: (req, file, cb) => {
-    cb(null, 'profile-' + Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(file.originalname));
-  }
-});
-const upload = multer({ 
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit for profile pictures
-});
+import { uploadCloudinary } from '../cloudinary.js';
 
 const router = express.Router();
 
@@ -75,7 +56,7 @@ router.get('/profile', authMiddleware, async (req, res) => {
   }
 });
 
-router.put('/profile', authMiddleware, upload.single('profile_image'), async (req, res) => {
+router.put('/profile', authMiddleware, uploadCloudinary.single('profile_image'), async (req, res) => {
   let { name, address, contact_phone, editor_type, charges, bio, instagram, youtube, website, other_link, remove_profile_image } = req.body;
   try {
     // Process bio into paragraphs if it's not already
@@ -106,7 +87,7 @@ router.put('/profile', authMiddleware, upload.single('profile_image'), async (re
     if (remove_profile_image === 'true' || remove_profile_image === true) {
       updateData.profile_image = null;
     } else if (req.file) {
-      updateData.profile_image = '/uploads/' + req.file.filename;
+      updateData.profile_image = req.file.path; // Cloudinary URL
     }
 
     const user = await prisma.user.update({

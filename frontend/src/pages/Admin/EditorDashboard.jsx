@@ -9,7 +9,7 @@ const EditorDashboard = () => {
 
   const fetchMyGalleries = async () => {
     try {
-      const API_BASE_URL = `http://${window.location.hostname}:5000`;
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || `http://${window.location.hostname}:5000`;
       const token = localStorage.getItem('token');
       const response = await fetch(`${API_BASE_URL}/api/gallery/me`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -30,7 +30,7 @@ const EditorDashboard = () => {
       const userStr = localStorage.getItem('user');
       if (userStr) {
         const user = JSON.parse(userStr);
-        const API_BASE_URL = `http://${window.location.hostname}:5000`;
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || `http://${window.location.hostname}:5000`;
         const response = await fetch(`${API_BASE_URL}/api/reviews/${user.id}`);
         if (response.ok) {
           const data = await response.json();
@@ -52,7 +52,7 @@ const EditorDashboard = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this project?')) return;
     try {
-      const API_BASE_URL = `http://${window.location.hostname}:5000`;
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || `http://${window.location.hostname}:5000`;
       const token = localStorage.getItem('token');
       const response = await fetch(`${API_BASE_URL}/api/gallery/${id}`, {
         method: 'DELETE',
@@ -164,7 +164,7 @@ const EditorDashboard = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {myGalleries.map((gallery) => {
-                const API_BASE_URL = `http://${window.location.hostname}:5000`;
+                const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || `http://${window.location.hostname}:5000`;
                 return (
                   <div key={gallery.id} className="bg-surface-1 border border-surface-2 rounded-sm overflow-hidden group cinematic-shadow">
                     <div className="relative h-56 w-full overflow-hidden">

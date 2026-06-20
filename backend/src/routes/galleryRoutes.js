@@ -1,28 +1,11 @@
 import express from 'express';
-import multer from 'multer';
+import { uploadCloudinary } from '../cloudinary.js';
 import prisma from '../db.js';
 import path from 'path';
 import fs from 'fs';
 import authMiddleware from '../middleware/auth.js';
 
 const router = express.Router();
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const dir = 'uploads/';
-    if (!fs.existsSync(dir)){
-        fs.mkdirSync(dir);
-    }
-    cb(null, dir);
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(file.originalname));
-  }
-});
-const upload = multer({ 
-  storage,
-  limits: { fileSize: 50 * 1024 * 1024 } // 50MB limit
-});
 
 router.get('/', async (req, res) => {
   try {
@@ -88,7 +71,7 @@ router.get('/user/:id', async (req, res) => {
   }
 });
 
-router.post('/', authMiddleware, upload.fields([{ name: 'before_image', maxCount: 1 }, { name: 'after_image', maxCount: 1 }]), async (req, res) => {
+router.post('/', authMiddleware, uploadCloudinary.fields([{ name: 'before_image', maxCount: 1 }, { name: 'after_image', maxCount: 1 }]), async (req, res) => {
   try {
     const { title, description, price, category_id, work_type, work_category } = req.body;
     
@@ -96,11 +79,11 @@ router.post('/', authMiddleware, upload.fields([{ name: 'before_image', maxCount
       return res.status(400).json({ error: 'A primary file (image or video) is required.' });
     }
 
-    const before_image = '/uploads/' + req.files.before_image[0].filename;
+    const before_image = req.files.before_image[0].path; // Cloudinary URL
     let after_image = null;
     
     if (req.files.after_image && req.files.after_image[0]) {
-       after_image = '/uploads/' + req.files.after_image[0].filename;
+       after_image = req.files.after_image[0].path; // Cloudinary URL
     }
 
     if (work_type === 'LUTs' && !after_image) {
@@ -141,15 +124,9 @@ router.delete('/:id', authMiddleware, async (req, res) => {
       return res.status(403).json({ error: 'Not authorized to delete this gallery' });
     }
 
-    // Attempt to delete files from disk
-    const deleteFile = (filePath) => {
-      const fullPath = path.join(process.cwd(), filePath);
-      if (fs.existsSync(fullPath)) {
-        try { fs.unlinkSync(fullPath); } catch (e) { console.error('Failed to delete file', e); }
-      }
-    };
-    deleteFile(gallery.before_image);
-    deleteFile(gallery.after_image);
+    // On Vercel (stateless) or with Cloudinary, we don't delete from local disk.
+    // If you want to delete from Cloudinary, you would use cloudinary.uploader.destroy()
+    // For now, we just skip local deletion since it's cloud-hosted.
 
     await prisma.gallery.delete({ where: { id } });
     res.json({ message: 'Gallery deleted successfully' });

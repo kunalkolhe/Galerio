@@ -24,7 +24,7 @@ const Settings = () => {
   const [isSavingPassword, setIsSavingPassword] = useState(false);
   const [userRole, setUserRole] = useState('CLIENT');
 
-  const API_BASE_URL = `http://${window.location.hostname}:5000`;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || `http://${window.location.hostname}:5000`;
 
   useEffect(() => {
     const fetchProfile = async () => {

@@ -11,7 +11,7 @@ const Gallery = () => {
   const [selectedMedia, setSelectedMedia] = useState(null);
 
   const [items, setItems] = useState([]);
-  const API_BASE_URL = `http://${window.location.hostname}:5000`;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || `http://${window.location.hostname}:5000`;
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/gallery`, { cache: 'no-store' })
