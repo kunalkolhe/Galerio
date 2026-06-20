@@ -264,13 +264,10 @@ const EditorProfile = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-50px" }}
                   transition={{ delay: (index % 10) * 0.08, duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
-                  whileHover="hover"
                   className="mb-8 relative group cursor-pointer"
                 >
-                  <motion.div 
-                    variants={{ hover: { scale: 1.02, y: -4 } }}
-                    transition={{ duration: 0.4, ease: "easeOut" }}
-                    className="rounded-sm overflow-hidden bg-surface-1 cinematic-shadow border border-surface-2"
+                  <div 
+                    className="rounded-sm overflow-hidden bg-surface-1 cinematic-shadow border border-surface-2 transition-transform duration-400 ease-out group-hover:scale-[1.02] group-hover:-translate-y-1"
                   >
                     {/* Media Container with Inner Zoom */}
                     <div 
@@ -281,10 +278,8 @@ const EditorProfile = () => {
                         }
                       }}
                     >
-                      <motion.div 
-                        variants={{ hover: { scale: 1.05 } }} 
-                        transition={{ duration: 0.6, ease: "easeOut" }}
-                        className="w-full h-full"
+                      <div 
+                        className="w-full h-full transition-transform duration-600 ease-out group-hover:scale-105"
                       >
                         {item.work_type === 'Video' ? (
                           <div className="relative aspect-[4/5] w-full bg-black">
@@ -320,16 +315,13 @@ const EditorProfile = () => {
                             />
                           </div>
                         )}
-                      </motion.div>
+                      </div>
 
                       {/* Hover Overlay Gradient */}
-                      <motion.div 
-                        variants={{ hover: { opacity: 1 } }}
-                        initial={{ opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-between p-8 pointer-events-none"
+                      <div 
+                        className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-between p-8 pointer-events-none opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300"
                       >
-                        <div className="flex justify-end transform -translate-y-4 group-hover:translate-y-0 transition-transform duration-400 ease-out pointer-events-auto">
+                        <div className="flex justify-end transform translate-y-0 lg:-translate-y-4 lg:group-hover:translate-y-0 transition-transform duration-400 ease-out pointer-events-auto">
                           <button 
                             onClick={(e) => { e.stopPropagation(); setSelectedMedia(item); }}
                             className="w-10 h-10 rounded-full bg-surface-1/50 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-accent hover:border-accent transition-colors shadow-xl"
@@ -338,7 +330,7 @@ const EditorProfile = () => {
                           </button>
                         </div>
 
-                        <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-400 ease-out pointer-events-auto">
+                        <div className="transform translate-y-0 lg:translate-y-4 lg:group-hover:translate-y-0 transition-transform duration-400 ease-out pointer-events-auto">
                           <div className="flex items-center gap-3 mb-3">
                             {item.work_type === 'Video' ? <Video className="w-5 h-5 text-primary" /> : 
                              item.work_type === 'LUTs' ? <Layers className="w-5 h-5 text-primary" /> : 
@@ -355,9 +347,9 @@ const EditorProfile = () => {
                             {item.price && <span className="text-secondary font-medium tracking-wide">{item.price}</span>}
                           </div>
                         </div>
-                      </motion.div>
+                      </div>
                     </div>
-                  </motion.div>
+                  </div>
                 </motion.div>
               ))}
             </Masonry>
