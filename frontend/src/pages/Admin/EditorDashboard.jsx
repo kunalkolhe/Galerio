@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Image as ImageIcon, Trash2, Loader2, Users, Eye, DollarSign } from 'lucide-react';
+import { Image as ImageIcon, Trash2, Loader2, Users, Eye, DollarSign, Star } from 'lucide-react';
 
 const EditorDashboard = () => {
   const [myGalleries, setMyGalleries] = useState([]);
   const [isLoadingGalleries, setIsLoadingGalleries] = useState(true);
+  const [reviews, setReviews] = useState([]);
+  const [isLoadingReviews, setIsLoadingReviews] = useState(true);
 
   const fetchMyGalleries = async () => {
     try {
@@ -23,8 +25,28 @@ const EditorDashboard = () => {
     }
   };
 
+  const fetchMyReviews = async () => {
+    try {
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        const API_BASE_URL = `http://${window.location.hostname}:5000`;
+        const response = await fetch(`${API_BASE_URL}/api/reviews/${user.id}`);
+        if (response.ok) {
+          const data = await response.json();
+          setReviews(data.reviews || []);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch reviews', err);
+    } finally {
+      setIsLoadingReviews(false);
+    }
+  };
+
   useEffect(() => {
     fetchMyGalleries();
+    fetchMyReviews();
   }, []);
 
   const handleDelete = async (id) => {
@@ -91,25 +113,39 @@ const EditorDashboard = () => {
 
           <div className="bg-surface-1 border border-surface-2 rounded-sm cinematic-shadow overflow-hidden">
             <div className="px-6 py-4 border-b border-surface-2 bg-surface-2/30">
-              <h3 className="text-lg font-display tracking-wide text-primary">Recent Client Activity</h3>
+              <h3 className="text-lg font-display tracking-wide text-primary">Recent Client Reviews</h3>
             </div>
             <div className="divide-y divide-surface-2/50">
-              {[
-                { name: 'Sarah Jenkins', action: 'Purchased "Cinematic Teal"', date: '2 hours ago', price: '$25.00' },
-                { name: 'Marcus Wong', action: 'Booked Portrait Editing', date: 'Yesterday', price: '$150.00' },
-                { name: 'Emily Chen', action: 'Purchased "Wedding Airy"', date: '3 days ago', price: '$35.00' },
-              ].map((client, i) => (
-                <div key={i} className="px-6 py-5 flex justify-between items-center hover:bg-surface-2/30 transition-colors">
-                  <div>
-                    <p className="text-primary font-medium tracking-wide">{client.name}</p>
-                    <p className="text-sm text-secondary">{client.action}</p>
+              {isLoadingReviews ? (
+                <div className="p-6 flex justify-center"><Loader2 className="w-6 h-6 text-accent animate-spin" /></div>
+              ) : reviews.length === 0 ? (
+                <div className="p-6 text-center text-secondary text-sm">You haven't received any reviews yet.</div>
+              ) : (
+                reviews.slice(0, 5).map((review) => (
+                  <div key={review.id} className="px-6 py-5 hover:bg-surface-2/30 transition-colors">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-surface-2 overflow-hidden border border-white/10 shrink-0 flex items-center justify-center">
+                          {review.client?.profile_image ? (
+                            <img src={`http://${window.location.hostname}:5000${review.client.profile_image}`} alt={review.client.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-xs font-bold text-secondary">{review.client?.name?.charAt(0) || 'U'}</span>
+                          )}
+                        </div>
+                        <p className="text-primary font-medium tracking-wide">{review.client?.name || 'Anonymous Client'}</p>
+                      </div>
+                      <div className="flex gap-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star key={star} className={`w-3.5 h-3.5 ${star <= review.rating ? 'fill-accent text-accent' : 'text-surface-2'}`} />
+                        ))}
+                      </div>
+                    </div>
+                    {review.comment && (
+                      <p className="text-sm text-secondary pl-11 line-clamp-2">{review.comment}</p>
+                    )}
                   </div>
-                  <div className="text-right">
-                    <p className="text-accent font-medium tracking-wider">{client.price}</p>
-                    <p className="text-xs text-secondary/70 uppercase tracking-widest mt-1">{client.date}</p>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </div>

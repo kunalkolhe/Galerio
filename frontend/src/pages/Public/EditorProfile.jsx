@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link as RouterLink } from 'react-router-dom';
 import Masonry from 'react-masonry-css';
-import { User, Loader2, Image as ImageIcon, Star, MapPin, Phone, Briefcase, DollarSign, MessageSquare, Video, Layers, Camera, Link as LinkIcon, Play, Heart, X, Mail } from 'lucide-react';
+import { User, Loader2, Image as ImageIcon, Star, MapPin, Phone, Briefcase, DollarSign, MessageSquare, Video, Layers, Camera, Link as LinkIcon, Play, Heart, X, Mail, Maximize2 } from 'lucide-react';
 import BeforeAfterSlider from '../../components/BeforeAfterSlider';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const EditorProfile = () => {
   const { id } = useParams();
@@ -14,6 +14,7 @@ const EditorProfile = () => {
   const [error, setError] = useState('');
   const [showContactModal, setShowContactModal] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
+  const [selectedMedia, setSelectedMedia] = useState(null);
   
   // Review form state
   const [rating, setRating] = useState(5);
@@ -96,7 +97,7 @@ const EditorProfile = () => {
   if (isLoading) {
     return (
       <div className="pt-32 pb-16 min-h-screen flex justify-center items-center bg-base">
-        <Loader2 className="w-8 h-8 text-accent animate-spin" />
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
       </div>
     );
   }
@@ -116,11 +117,8 @@ const EditorProfile = () => {
         
         {/* Editor Feature Spread Header */}
         <div className="mb-24 relative">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent/5 rounded-full blur-[120px] pointer-events-none" />
-          
           <div className="flex flex-col md:flex-row gap-8 lg:gap-16 items-center md:items-end mb-16 relative z-10 text-center md:text-left">
-            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-gradient-to-br from-surface-1 to-base border border-white/10 overflow-hidden shrink-0 cinematic-shadow flex items-center justify-center p-1 relative group">
-               <div className="absolute inset-0 bg-accent/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-surface-1 border border-surface-2 overflow-hidden shrink-0 cinematic-shadow flex items-center justify-center p-1 relative group">
                <div className="w-full h-full rounded-full bg-surface-2 flex items-center justify-center relative z-10 overflow-hidden">
                  {editor.profile_image ? (
                    <img src={`${API_BASE_URL}${editor.profile_image}`} alt={editor.name} className="w-full h-full object-cover" />
@@ -136,58 +134,58 @@ const EditorProfile = () => {
                 <div className="flex items-center gap-4">
                   <button 
                     onClick={() => setIsLiked(!isLiked)}
-                    className={`w-12 h-12 rounded-full backdrop-blur-md border flex items-center justify-center transition-all duration-300 ${isLiked ? 'bg-red-500/10 border-red-500/50 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)] scale-110' : 'bg-surface-1/50 border-white/10 text-secondary hover:text-red-400 hover:border-red-400/50'}`}
+                    className={`w-12 h-12 rounded-full border flex items-center justify-center transition-all duration-300 ${isLiked ? 'bg-surface-2 border-accent/50 text-accent shadow-[0_0_15px_rgba(217,119,6,0.1)] scale-110' : 'bg-surface-1 border-surface-2 text-secondary hover:text-accent hover:border-accent/50'}`}
                   >
-                    <Heart className={`w-5 h-5 transition-all duration-300 ${isLiked ? 'fill-red-500' : ''}`} />
+                    <Heart className={`w-5 h-5 transition-all duration-300 ${isLiked ? 'fill-accent' : ''}`} />
                   </button>
                   <button 
                     onClick={() => setShowContactModal(true)}
-                    className="px-6 py-3 rounded-full bg-accent text-white text-xs uppercase tracking-widest font-medium hover:bg-yellow-400 transition-colors cinematic-shadow"
+                    className="px-8 py-3.5 bg-surface-2 border border-surface-2 text-primary text-xs uppercase tracking-widest font-medium hover:text-accent hover:border-accent/50 transition-all cinematic-shadow"
                   >
                     Contact Details
                   </button>
                 </div>
               </div>
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-xs uppercase tracking-widest font-medium">
-                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-surface-1/50 backdrop-blur-md border border-white/5">
+                <div className="flex items-center gap-2 px-4 py-2 rounded-sm bg-surface-1 border border-surface-2">
                   <Star className="w-3.5 h-3.5 text-accent fill-accent" />
                   <span className="text-primary">{reviewsData.averageRating}</span>
                   <span className="text-secondary">({reviewsData.totalReviews} reviews)</span>
                 </div>
                 {editor.editor_type && (
-                  <div className="px-4 py-2 rounded-full bg-surface-1/50 backdrop-blur-md border border-white/5 text-secondary">
+                  <div className="px-4 py-2 rounded-sm bg-surface-1 border border-surface-2 text-secondary">
                     {editor.editor_type}
                   </div>
                 )}
-                <div className="px-4 py-2 rounded-full bg-surface-1/50 backdrop-blur-md border border-white/5 text-secondary">
+                <div className="px-4 py-2 rounded-sm bg-surface-1 border border-surface-2 text-secondary">
                   {galleries.length} Projects
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 border-t border-surface-2/50 pt-16 mt-8 relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 border-t border-surface-2 pt-16 mt-8 relative z-10">
             <div className="md:col-span-2">
               <h3 className="text-sm font-medium tracking-widest uppercase text-secondary mb-6 flex items-center gap-2">
-                <User className="w-4 h-4 text-accent" /> About the Artist
+                <User className="w-4 h-4 text-primary" /> About the Artist
               </h3>
               <p className="text-xl md:text-2xl text-primary/90 font-display leading-relaxed max-w-3xl">
                 {editor.bio || "This artist prefers to let their work speak for itself."}
               </p>
             </div>
             
-            <div id="contact-section" className="bg-surface-1/30 p-8 rounded-sm border border-surface-2/50 backdrop-blur-md">
+            <div id="contact-section" className="bg-surface-1 p-8 rounded-sm border border-surface-2">
               <h3 className="text-sm font-medium tracking-widest uppercase text-secondary mb-6">Details & Contact</h3>
               <div className="space-y-4 text-sm text-primary font-medium tracking-wide">
-                {editor.address && <p className="flex items-center gap-4"><MapPin className="w-4 h-4 text-accent" /> {editor.address}</p>}
-                {editor.charges && <p className="flex items-center gap-4"><DollarSign className="w-4 h-4 text-accent" /> {editor.charges}</p>}
-                {editor.contact_phone && <p className="flex items-center gap-4"><Phone className="w-4 h-4 text-accent" /> {editor.contact_phone}</p>}
+                {editor.address && <p className="flex items-center gap-4"><MapPin className="w-4 h-4 text-secondary" /> {editor.address}</p>}
+                {editor.charges && <p className="flex items-center gap-4"><DollarSign className="w-4 h-4 text-secondary" /> {editor.charges}</p>}
+                {editor.contact_phone && <p className="flex items-center gap-4"><Phone className="w-4 h-4 text-secondary" /> {editor.contact_phone}</p>}
                 
-                <div className="flex items-center gap-4 pt-6 mt-6 border-t border-surface-2/50">
-                  {editor.instagram && <a href={editor.instagram} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-surface-2 flex items-center justify-center hover:bg-accent hover:text-base text-secondary hover:text-white transition-colors"><Camera className="w-4 h-4" /></a>}
-                  {editor.youtube && <a href={editor.youtube} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-surface-2 flex items-center justify-center hover:bg-accent hover:text-base text-secondary hover:text-white transition-colors"><Video className="w-4 h-4" /></a>}
-                  {editor.website && <a href={editor.website} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-surface-2 flex items-center justify-center hover:bg-accent hover:text-base text-secondary hover:text-white transition-colors"><LinkIcon className="w-4 h-4" /></a>}
-                  {editor.other_link && <a href={editor.other_link} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-surface-2 flex items-center justify-center hover:bg-accent hover:text-base text-secondary hover:text-white transition-colors"><LinkIcon className="w-4 h-4" /></a>}
+                <div className="flex items-center gap-4 pt-6 mt-6 border-t border-surface-2">
+                  {editor.instagram && <a href={editor.instagram} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-sm bg-surface-2 flex items-center justify-center hover:bg-surface-3 hover:text-accent text-secondary transition-colors"><Camera className="w-4 h-4" /></a>}
+                  {editor.youtube && <a href={editor.youtube} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-sm bg-surface-2 flex items-center justify-center hover:bg-surface-3 hover:text-accent text-secondary transition-colors"><Video className="w-4 h-4" /></a>}
+                  {editor.website && <a href={editor.website} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-sm bg-surface-2 flex items-center justify-center hover:bg-surface-3 hover:text-accent text-secondary transition-colors"><LinkIcon className="w-4 h-4" /></a>}
+                  {editor.other_link && <a href={editor.other_link} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-sm bg-surface-2 flex items-center justify-center hover:bg-surface-3 hover:text-accent text-secondary transition-colors"><LinkIcon className="w-4 h-4" /></a>}
                 </div>
               </div>
             </div>
@@ -223,10 +221,17 @@ const EditorProfile = () => {
                   <motion.div 
                     variants={{ hover: { scale: 1.02, y: -4 } }}
                     transition={{ duration: 0.4, ease: "easeOut" }}
-                    className="rounded-sm overflow-hidden bg-surface-1 cinematic-shadow border border-surface-2/30"
+                    className="rounded-sm overflow-hidden bg-surface-1 cinematic-shadow border border-surface-2"
                   >
                     {/* Media Container with Inner Zoom */}
-                    <div className="relative w-full overflow-hidden bg-base">
+                    <div 
+                      className="relative w-full overflow-hidden bg-base"
+                      onClick={() => {
+                        if (item.work_type !== 'LUTs') {
+                          setSelectedMedia(item);
+                        }
+                      }}
+                    >
                       <motion.div 
                         variants={{ hover: { scale: 1.05 } }} 
                         transition={{ duration: 0.6, ease: "easeOut" }}
@@ -273,23 +278,32 @@ const EditorProfile = () => {
                         variants={{ hover: { opacity: 1 } }}
                         initial={{ opacity: 0 }}
                         transition={{ duration: 0.3 }}
-                        className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-8"
+                        className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-between p-8 pointer-events-none"
                       >
-                        <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-400 ease-out">
+                        <div className="flex justify-end transform -translate-y-4 group-hover:translate-y-0 transition-transform duration-400 ease-out pointer-events-auto">
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); setSelectedMedia(item); }}
+                            className="w-10 h-10 rounded-full bg-surface-1/50 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-accent hover:border-accent transition-colors shadow-xl"
+                          >
+                            <Maximize2 className="w-4 h-4" />
+                          </button>
+                        </div>
+
+                        <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-400 ease-out pointer-events-auto">
                           <div className="flex items-center gap-3 mb-3">
-                            {item.work_type === 'Video' ? <Video className="w-5 h-5 text-accent" /> : 
-                             item.work_type === 'LUTs' ? <Layers className="w-5 h-5 text-accent" /> : 
-                             <ImageIcon className="w-5 h-5 text-accent" />}
+                            {item.work_type === 'Video' ? <Video className="w-5 h-5 text-primary" /> : 
+                             item.work_type === 'LUTs' ? <Layers className="w-5 h-5 text-primary" /> : 
+                             <ImageIcon className="w-5 h-5 text-primary" />}
                             <h3 className="text-2xl font-display text-primary leading-tight">
                               {item.title}
                             </h3>
                           </div>
                           
-                          <div className="flex items-center justify-between border-t border-white/10 pt-4 mt-2">
-                            <span className="text-xs px-3 py-1 bg-surface-2/80 backdrop-blur-sm text-primary uppercase tracking-widest rounded-full border border-white/10">
+                          <div className="flex items-center justify-between border-t border-surface-2 pt-4 mt-2">
+                            <span className="text-xs px-3 py-1 bg-surface-2 text-primary uppercase tracking-widest rounded-sm border border-surface-2">
                               {item.work_category || 'Uncategorized'}
                             </span>
-                            {item.price && <span className="text-accent font-medium tracking-wide">{item.price}</span>}
+                            {item.price && <span className="text-secondary font-medium tracking-wide">{item.price}</span>}
                           </div>
                         </div>
                       </motion.div>
@@ -316,7 +330,7 @@ const EditorProfile = () => {
               ) : (
                 reviewsData.reviews.map(review => (
                   <div key={review.id} className="border-l border-surface-2 pl-8 py-2 relative group">
-                    <div className="absolute top-0 -left-[1px] w-[2px] h-0 bg-accent group-hover:h-full transition-all duration-500 ease-out" />
+                    <div className="absolute top-0 -left-[1px] w-[2px] h-0 bg-primary group-hover:h-full transition-all duration-500 ease-out" />
                     {review.comment ? (
                       <p className="text-xl font-display text-primary/90 leading-relaxed mb-4">"{review.comment}"</p>
                     ) : (
@@ -355,7 +369,7 @@ const EditorProfile = () => {
                           disabled={isLoggedIn && currentUser.id === parseInt(id)}
                           className="focus:outline-none transition-transform hover:scale-110 disabled:opacity-50 disabled:hover:scale-100"
                         >
-                          <Star className={`w-6 h-6 ${star <= rating ? 'text-accent fill-accent shadow-accent' : 'text-surface-2'}`} />
+                          <Star className={`w-6 h-6 ${star <= rating ? 'text-accent fill-accent' : 'text-surface-2'}`} />
                         </button>
                       ))}
                     </div>
@@ -368,7 +382,7 @@ const EditorProfile = () => {
                       onChange={(e) => setComment(e.target.value)}
                       disabled={isLoggedIn && currentUser.id === parseInt(id)}
                       rows="4"
-                      className="w-full bg-base border border-surface-2 rounded-sm px-4 py-3 text-primary focus:outline-none focus:border-accent/50 focus:shadow-[0_0_15px_rgba(217,119,6,0.1)] transition-all resize-none text-sm leading-relaxed disabled:opacity-50"
+                      className="w-full bg-base border border-surface-2 rounded-sm px-4 py-3 text-primary focus:outline-none focus:border-accent/50 transition-all resize-none text-sm leading-relaxed disabled:opacity-50"
                       placeholder="Detail your experience..."
                     ></textarea>
                   </div>
@@ -402,7 +416,7 @@ const EditorProfile = () => {
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            className="absolute inset-0 bg-base/80 backdrop-blur-sm"
             onClick={() => setShowContactModal(false)}
           />
           <motion.div 
@@ -424,8 +438,8 @@ const EditorProfile = () => {
               <div className="space-y-6">
                 {editor.email && (
                   <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-surface-2 flex items-center justify-center shrink-0">
-                      <Mail className="w-5 h-5 text-accent" />
+                    <div className="w-10 h-10 rounded-sm bg-surface-2 flex items-center justify-center shrink-0">
+                      <Mail className="w-5 h-5 text-primary" />
                     </div>
                     <div>
                       <p className="text-xs uppercase tracking-widest text-secondary font-medium mb-1">Email Address</p>
@@ -436,8 +450,8 @@ const EditorProfile = () => {
                 
                 {editor.contact_phone && (
                   <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-surface-2 flex items-center justify-center shrink-0">
-                      <Phone className="w-5 h-5 text-accent" />
+                    <div className="w-10 h-10 rounded-sm bg-surface-2 flex items-center justify-center shrink-0">
+                      <Phone className="w-5 h-5 text-primary" />
                     </div>
                     <div>
                       <p className="text-xs uppercase tracking-widest text-secondary font-medium mb-1">Phone Number</p>
@@ -450,8 +464,8 @@ const EditorProfile = () => {
               <div>
                 {editor.address && (
                   <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-surface-2 flex items-center justify-center shrink-0">
-                      <MapPin className="w-5 h-5 text-accent" />
+                    <div className="w-10 h-10 rounded-sm bg-surface-2 flex items-center justify-center shrink-0">
+                      <MapPin className="w-5 h-5 text-primary" />
                     </div>
                     <div>
                       <p className="text-xs uppercase tracking-widest text-secondary font-medium mb-1">Location</p>
@@ -463,19 +477,72 @@ const EditorProfile = () => {
             </div>
 
             {(editor.instagram || editor.youtube || editor.website || editor.other_link) && (
-              <div className="mt-8 pt-8 border-t border-surface-2/50">
+              <div className="mt-8 pt-8 border-t border-surface-2">
                 <p className="text-xs uppercase tracking-widest text-secondary font-medium mb-4">Social & Links</p>
                 <div className="flex flex-wrap gap-4">
-                  {editor.instagram && <a href={editor.instagram} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-surface-2 hover:bg-accent hover:text-base text-primary rounded-full transition-colors"><Camera className="w-4 h-4" /> Instagram</a>}
-                  {editor.youtube && <a href={editor.youtube} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-surface-2 hover:bg-accent hover:text-base text-primary rounded-full transition-colors"><Video className="w-4 h-4" /> YouTube</a>}
-                  {editor.website && <a href={editor.website} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-surface-2 hover:bg-accent hover:text-base text-primary rounded-full transition-colors"><LinkIcon className="w-4 h-4" /> Website</a>}
-                  {editor.other_link && <a href={editor.other_link} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-surface-2 hover:bg-accent hover:text-base text-primary rounded-full transition-colors"><LinkIcon className="w-4 h-4" /> Other</a>}
+                  {editor.instagram && <a href={editor.instagram} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-surface-2 border border-surface-2 hover:border-accent/50 hover:text-accent text-primary rounded-sm transition-colors"><Camera className="w-4 h-4" /> Instagram</a>}
+                  {editor.youtube && <a href={editor.youtube} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-surface-2 border border-surface-2 hover:border-accent/50 hover:text-accent text-primary rounded-sm transition-colors"><Video className="w-4 h-4" /> YouTube</a>}
+                  {editor.website && <a href={editor.website} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-surface-2 border border-surface-2 hover:border-accent/50 hover:text-accent text-primary rounded-sm transition-colors"><LinkIcon className="w-4 h-4" /> Website</a>}
+                  {editor.other_link && <a href={editor.other_link} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-surface-2 border border-surface-2 hover:border-accent/50 hover:text-accent text-primary rounded-sm transition-colors"><LinkIcon className="w-4 h-4" /> Other</a>}
                 </div>
               </div>
             )}
           </motion.div>
         </div>
       )}
+
+      {/* Lightbox Modal */}
+      <AnimatePresence>
+        {selectedMedia && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-xl p-4 md:p-12"
+            onClick={() => setSelectedMedia(null)}
+          >
+            <button 
+              className="absolute top-6 right-6 p-3 bg-surface-1/50 hover:bg-surface-2 rounded-full text-primary transition-colors backdrop-blur-md border border-white/10"
+              onClick={() => setSelectedMedia(null)}
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="relative max-w-7xl w-full max-h-full flex items-center justify-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {selectedMedia.work_type === 'Video' ? (
+                <video 
+                  src={`${API_BASE_URL}${selectedMedia.before_image}`} 
+                  controls 
+                  autoPlay
+                  className="max-w-full max-h-[85vh] rounded-sm shadow-2xl"
+                />
+              ) : selectedMedia.work_type === 'LUTs' ? (
+                <div className="max-w-[95vw] rounded-sm shadow-2xl overflow-hidden flex justify-center items-center bg-black">
+                  <BeforeAfterSlider 
+                    beforeImage={`${API_BASE_URL}${selectedMedia.before_image}`} 
+                    afterImage={`${API_BASE_URL}${selectedMedia.after_image}`} 
+                    title={selectedMedia.title} 
+                    isLightbox={true}
+                  />
+                </div>
+              ) : (
+                <img 
+                  src={`${API_BASE_URL}${selectedMedia.before_image}`} 
+                  alt={selectedMedia.title}
+                  className="max-w-full max-h-[85vh] object-contain rounded-sm shadow-2xl"
+                />
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </>
   );
