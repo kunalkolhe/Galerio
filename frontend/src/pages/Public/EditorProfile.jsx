@@ -13,6 +13,7 @@ const EditorProfile = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [showContactModal, setShowContactModal] = useState(false);
+  const [showHireModal, setShowHireModal] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState(null);
   
@@ -21,6 +22,11 @@ const EditorProfile = () => {
   const [comment, setComment] = useState('');
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [reviewError, setReviewError] = useState('');
+
+  // Hire form state
+  const [hireDetails, setHireDetails] = useState({ name: '', email: '', message: '' });
+  const [isSubmittingHire, setIsSubmittingHire] = useState(false);
+  const [hireStatus, setHireStatus] = useState('');
 
   const API_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
@@ -88,6 +94,40 @@ const EditorProfile = () => {
     }
   };
 
+  const submitHireRequest = async (e) => {
+    e.preventDefault();
+    setIsSubmittingHire(true);
+    setHireStatus('');
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/notifications/hire`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          editor_id: parseInt(id), 
+          content: hireDetails.message, 
+          from_name: hireDetails.name, 
+          from_email: hireDetails.email 
+        })
+      });
+
+      if (response.ok) {
+        setHireStatus('success');
+        setHireDetails({ name: '', email: '', message: '' });
+        setTimeout(() => {
+          setShowHireModal(false);
+          setHireStatus('');
+        }, 3000);
+      } else {
+        const errData = await response.json();
+        setHireStatus(`error: ${errData.error || 'Failed to send request'}`);
+      }
+    } catch (err) {
+      setHireStatus('error: An error occurred while sending.');
+    } finally {
+      setIsSubmittingHire(false);
+    }
+  };
+
   const breakpointColumnsObj = {
     default: 3,
     1100: 2,
@@ -139,10 +179,16 @@ const EditorProfile = () => {
                     <Heart className={`w-5 h-5 transition-all duration-300 ${isLiked ? 'fill-accent' : ''}`} />
                   </button>
                   <button 
-                    onClick={() => setShowContactModal(true)}
-                    className="px-8 py-3.5 bg-surface-2 border border-surface-2 text-primary text-xs uppercase tracking-widest font-medium hover:text-accent hover:border-accent/50 transition-all cinematic-shadow"
+                    onClick={() => setShowHireModal(true)}
+                    className="px-8 py-3.5 bg-accent text-base text-xs uppercase tracking-widest font-medium hover:bg-accent/90 transition-all cinematic-shadow flex items-center gap-2 rounded-sm"
                   >
-                    Contact Details
+                    <Briefcase className="w-4 h-4" /> Hire Me
+                  </button>
+                  <button 
+                    onClick={() => setShowContactModal(true)}
+                    className="px-6 py-3.5 bg-surface-2 border border-surface-2 text-primary text-xs uppercase tracking-widest font-medium hover:text-accent hover:border-accent/50 transition-all cinematic-shadow rounded-sm"
+                  >
+                    Details
                   </button>
                 </div>
               </div>
@@ -175,8 +221,10 @@ const EditorProfile = () => {
             </div>
             
             <div id="contact-section" className="bg-surface-1 p-8 rounded-sm border border-surface-2">
-              <h3 className="text-sm font-medium tracking-widest uppercase text-secondary mb-6">Details & Contact</h3>
+              <h3 className="text-sm font-medium tracking-widest uppercase text-secondary mb-6">Details & Info</h3>
               <div className="space-y-4 text-sm text-primary font-medium tracking-wide">
+                {editor.software_used && <p className="flex items-center gap-4"><Layers className="w-4 h-4 text-secondary" /> {editor.software_used}</p>}
+                {editor.years_experience && <p className="flex items-center gap-4"><Briefcase className="w-4 h-4 text-secondary" /> {editor.years_experience} Experience</p>}
                 {editor.address && <p className="flex items-center gap-4"><MapPin className="w-4 h-4 text-secondary" /> {editor.address}</p>}
                 {editor.charges && <p className="flex items-center gap-4"><DollarSign className="w-4 h-4 text-secondary" /> {editor.charges}</p>}
                 {editor.contact_phone && <p className="flex items-center gap-4"><Phone className="w-4 h-4 text-secondary" /> {editor.contact_phone}</p>}
@@ -487,6 +535,82 @@ const EditorProfile = () => {
                 </div>
               </div>
             )}
+          </motion.div>
+        </div>
+      )}
+
+      {/* Hire Me Modal */}
+      {showHireModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-base/80 backdrop-blur-sm"
+            onClick={() => setShowHireModal(false)}
+          />
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            className="relative bg-surface-1 border border-surface-2 p-8 md:p-12 rounded-sm cinematic-shadow max-w-2xl w-full z-10"
+          >
+            <button 
+              onClick={() => setShowHireModal(false)}
+              className="absolute top-6 right-6 text-secondary hover:text-white transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            
+            <h2 className="text-3xl font-display text-primary mb-2">Hire <span className="capitalize">{editor.name}</span></h2>
+            <p className="text-secondary mb-8">Send a project request directly to their inbox.</p>
+            
+            <form onSubmit={submitHireRequest} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="text-xs uppercase tracking-widest font-medium text-secondary block mb-3">Your Name</label>
+                  <input 
+                    type="text" required
+                    value={hireDetails.name} onChange={(e) => setHireDetails({...hireDetails, name: e.target.value})}
+                    className="w-full bg-base border border-surface-2 rounded-sm px-4 py-3 text-primary focus:outline-none focus:border-accent/50 transition-all text-sm"
+                    placeholder="John Doe"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs uppercase tracking-widest font-medium text-secondary block mb-3">Your Email</label>
+                  <input 
+                    type="email" required
+                    value={hireDetails.email} onChange={(e) => setHireDetails({...hireDetails, email: e.target.value})}
+                    className="w-full bg-base border border-surface-2 rounded-sm px-4 py-3 text-primary focus:outline-none focus:border-accent/50 transition-all text-sm"
+                    placeholder="john@example.com"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="text-xs uppercase tracking-widest font-medium text-secondary block mb-3">Project Details & Budget</label>
+                <textarea 
+                  required rows="5"
+                  value={hireDetails.message} onChange={(e) => setHireDetails({...hireDetails, message: e.target.value})}
+                  className="w-full bg-base border border-surface-2 rounded-sm px-4 py-3 text-primary focus:outline-none focus:border-accent/50 transition-all resize-none text-sm"
+                  placeholder="Describe your project, timeline, and estimated budget..."
+                ></textarea>
+              </div>
+
+              {hireStatus && (
+                <div className={`p-4 rounded-sm text-sm font-medium ${hireStatus === 'success' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+                  {hireStatus === 'success' ? 'Request sent successfully! They will contact you via email.' : hireStatus.replace('error: ', '')}
+                </div>
+              )}
+
+              <button 
+                type="submit" disabled={isSubmittingHire}
+                className="w-full bg-accent text-base tracking-widest uppercase text-xs font-medium py-4 rounded-sm hover:bg-accent/90 transition-colors flex items-center justify-center gap-3 disabled:opacity-50"
+              >
+                {isSubmittingHire ? <Loader2 className="w-4 h-4 animate-spin" /> : <Briefcase className="w-4 h-4" />}
+                {isSubmittingHire ? 'Sending Request...' : 'Send Project Request'}
+              </button>
+            </form>
           </motion.div>
         </div>
       )}

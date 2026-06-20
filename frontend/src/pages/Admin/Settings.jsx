@@ -9,6 +9,8 @@ const Settings = () => {
     editor_type: '',
     charges: '',
     bio: '',
+    software_used: '',
+    years_experience: '',
     instagram: '',
     youtube: '',
     website: '',
@@ -42,6 +44,8 @@ const Settings = () => {
               editor_type: data.editor_type || '',
               charges: data.charges || '',
               bio: data.bio || '',
+              software_used: data.software_used || '',
+              years_experience: data.years_experience || '',
               instagram: data.instagram || '',
               youtube: data.youtube || '',
               website: data.website || '',
@@ -252,6 +256,27 @@ const Settings = () => {
                 </div>
               )}
             </div>
+
+            {userRole !== 'CLIENT' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-3">
+                  <label className="text-sm font-medium tracking-wide text-primary">Software Used</label>
+                  <input 
+                    type="text" name="software_used" value={profile.software_used} onChange={handleChange}
+                    placeholder="e.g. Premiere Pro, DaVinci Resolve"
+                    className={inputClass}
+                  />
+                </div>
+                <div className="space-y-3">
+                  <label className="text-sm font-medium tracking-wide text-primary">Years of Experience</label>
+                  <input 
+                    type="text" name="years_experience" value={profile.years_experience} onChange={handleChange}
+                    placeholder="e.g. 5 Years"
+                    className={inputClass}
+                  />
+                </div>
+              </div>
+            )}
 
             <div className="space-y-3">
               <label className="text-sm font-medium tracking-wide text-primary">Location</label>

@@ -19,6 +19,8 @@ model User {
   editor_type   String?
   charges       String?
   bio           String?
+  software_used String?
+  years_experience String?
   instagram     String?
   youtube       String?
   website       String?
@@ -28,6 +30,7 @@ model User {
   galleries     Gallery[]
   reviewsGiven  Review[]  @relation("ReviewsGiven")
   reviewsReceived Review[] @relation("ReviewsReceived")
+  notifications Notification[]
 }
 
 model Gallery {
@@ -82,5 +85,17 @@ model Review {
   client     User     @relation("ReviewsGiven", fields: [client_id], references: [id])
   editor_id  Int
   editor     User     @relation("ReviewsReceived", fields: [editor_id], references: [id])
+  created_at DateTime @default(now())
+}
+
+model Notification {
+  id         Int      @id @default(autoincrement())
+  user_id    Int      // The editor receiving the notification
+  user       User     @relation(fields: [user_id], references: [id])
+  type       String   // e.g. "HIRE_REQUEST", "GENERAL"
+  content    String
+  from_name  String?
+  from_email String?
+  is_read    Boolean  @default(false)
   created_at DateTime @default(now())
 }

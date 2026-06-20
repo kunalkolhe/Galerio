@@ -48,7 +48,7 @@ router.get('/profile', authMiddleware, async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.user.userId },
-      select: { id: true, name: true, email: true, role: true, address: true, contact_phone: true, editor_type: true, charges: true, bio: true, profile_image: true }
+      select: { id: true, name: true, email: true, role: true, address: true, contact_phone: true, editor_type: true, charges: true, bio: true, software_used: true, years_experience: true, profile_image: true }
     });
     res.json(user);
   } catch (err) {
@@ -57,7 +57,7 @@ router.get('/profile', authMiddleware, async (req, res) => {
 });
 
 router.put('/profile', authMiddleware, uploadCloudinary.single('profile_image'), async (req, res) => {
-  let { name, address, contact_phone, editor_type, charges, bio, instagram, youtube, website, other_link, remove_profile_image } = req.body;
+  let { name, address, contact_phone, editor_type, charges, bio, software_used, years_experience, instagram, youtube, website, other_link, remove_profile_image } = req.body;
   try {
     // Process bio into paragraphs if it's not already
     if (bio && typeof bio === 'string') {
@@ -78,6 +78,8 @@ router.put('/profile', authMiddleware, uploadCloudinary.single('profile_image'),
       updateData.editor_type = editor_type;
       updateData.charges = charges;
       updateData.bio = bio;
+      updateData.software_used = software_used;
+      updateData.years_experience = years_experience;
       updateData.instagram = instagram;
       updateData.youtube = youtube;
       updateData.website = website;
@@ -93,7 +95,7 @@ router.put('/profile', authMiddleware, uploadCloudinary.single('profile_image'),
     const user = await prisma.user.update({
       where: { id: req.user.userId },
       data: updateData,
-      select: { id: true, name: true, email: true, role: true, address: true, contact_phone: true, editor_type: true, charges: true, bio: true, instagram: true, youtube: true, website: true, other_link: true, profile_image: true }
+      select: { id: true, name: true, email: true, role: true, address: true, contact_phone: true, editor_type: true, charges: true, bio: true, software_used: true, years_experience: true, instagram: true, youtube: true, website: true, other_link: true, profile_image: true }
     });
     res.json(user);
   } catch (err) {

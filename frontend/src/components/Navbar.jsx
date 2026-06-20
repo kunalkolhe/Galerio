@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Camera, Menu, X, User, LogOut, LayoutDashboard, PlusCircle, Settings } from 'lucide-react';
+import { Camera, Menu, X, User, LogOut, LayoutDashboard, PlusCircle, Settings, Bell } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [scrolled, setScrolled] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
+  const API_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -22,6 +24,30 @@ const Navbar = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      if (user && (user.role === 'EDITOR' || user.role === 'ADMIN')) {
+        try {
+          const token = localStorage.getItem('token');
+          const res = await fetch(`${API_BASE_URL}/api/notifications`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const unread = data.filter(n => !n.is_read).length;
+            setUnreadCount(unread);
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    };
+    fetchNotifications();
+    // Poll every 30 seconds for new notifications
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
+  }, [user, API_BASE_URL]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -78,6 +104,14 @@ const Navbar = () => {
                 <div className="absolute right-0 mt-4 w-56 bg-surface-1 border border-surface-2 shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 overflow-hidden rounded-sm">
                   {(user.role?.toUpperCase() === 'EDITOR' || user.role?.toUpperCase() === 'ADMIN') && (
                     <>
+                      <Link to="/notifications" className="px-5 py-4 text-sm text-secondary hover:text-primary hover:bg-surface-2 transition-colors flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Bell className="w-4 h-4" /> Inbox
+                        </div>
+                        {unreadCount > 0 && (
+                          <span className="bg-accent text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{unreadCount}</span>
+                        )}
+                      </Link>
                       <Link to="/editor" className="px-5 py-4 text-sm text-secondary hover:text-primary hover:bg-surface-2 transition-colors flex items-center gap-3">
                         <LayoutDashboard className="w-4 h-4" /> Dashboard
                       </Link>
@@ -151,6 +185,10 @@ const Navbar = () => {
                   <div className="space-y-2 mb-6">
                     {(user.role?.toUpperCase() === 'EDITOR' || user.role?.toUpperCase() === 'ADMIN') && (
                       <>
+                        <Link to="/notifications" onClick={() => setIsOpen(false)} className="px-4 py-3 rounded-sm flex items-center justify-between text-secondary hover:text-primary hover:bg-surface-2 transition-colors">
+                          <div className="flex items-center gap-3"><Bell className="w-4 h-4"/> Inbox</div>
+                          {unreadCount > 0 && <span className="bg-accent text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{unreadCount}</span>}
+                        </Link>
                         <Link to="/editor" onClick={() => setIsOpen(false)} className="px-4 py-3 rounded-sm flex items-center gap-3 text-secondary hover:text-primary hover:bg-surface-2 transition-colors"><LayoutDashboard className="w-4 h-4"/> Dashboard</Link>
                         <Link to="/upload" onClick={() => setIsOpen(false)} className="px-4 py-3 rounded-sm flex items-center gap-3 text-secondary hover:text-primary hover:bg-surface-2 transition-colors"><PlusCircle className="w-4 h-4"/> Add Work</Link>
                       </>

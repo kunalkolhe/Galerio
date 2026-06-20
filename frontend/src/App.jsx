@@ -7,6 +7,7 @@ import Gallery from './pages/Public/Gallery';
 import EditorDashboard from './pages/Admin/EditorDashboard';
 import UploadWork from './pages/Admin/UploadWork';
 import Settings from './pages/Admin/Settings';
+import Notifications from './pages/Admin/Notifications';
 
 import Login from './pages/Public/Login';
 import Register from './pages/Public/Register';
@@ -40,6 +41,11 @@ function App() {
             <Route path="/upload" element={
               <ProtectedRoute allowedRoles={['EDITOR', 'ADMIN']}>
                 <UploadWork />
+              </ProtectedRoute>
+            } />
+            <Route path="/notifications" element={
+              <ProtectedRoute allowedRoles={['EDITOR', 'ADMIN']}>
+                <Notifications />
               </ProtectedRoute>
             } />
             <Route path="/settings" element={
