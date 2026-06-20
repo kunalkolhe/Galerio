@@ -3,12 +3,38 @@ import { Mail, MessageSquare, MapPin } from 'lucide-react';
 
 const Contact = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [status, setStatus] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert('Message sent! We will get back to you shortly.');
-    setFormData({ name: '', email: '', message: '' });
+    setIsSubmitting(true);
+    setStatus('Sending message...');
+
+    try {
+      const API_BASE_URL = `http://${window.location.hostname}:5000`;
+      const response = await fetch(`${API_BASE_URL}/api/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        setStatus('Message sent successfully! We will get back to you shortly.');
+        setFormData({ name: '', email: '', message: '' });
+      } else {
+        const errorData = await response.json();
+        setStatus(errorData.error || 'Failed to send message. Please try again.');
+      }
+    } catch (error) {
+      console.error('Contact error:', error);
+      setStatus('Network error. Please try again later.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const inputClass = "w-full bg-surface-2 border border-surface-2 rounded-sm px-4 py-3 text-primary placeholder-secondary focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all";
 
@@ -81,8 +107,22 @@ const Contact = () => {
                 className={inputClass}
               ></textarea>
             </div>
-            <button type="submit" className="w-full bg-accent text-base tracking-widest uppercase text-sm font-medium rounded-sm py-4 hover:bg-yellow-400 transition-colors">
-              Send Message
+            {status && (
+              <div className={`p-4 rounded-sm text-sm font-medium tracking-wide border ${
+                status.includes('successfully') 
+                  ? 'bg-green-500/10 text-green-400 border-green-500/20' 
+                  : 'bg-red-500/10 text-red-400 border-red-500/20'
+              }`}>
+                {status}
+              </div>
+            )}
+            
+            <button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="w-full bg-surface-2 text-primary border border-surface-2 text-base tracking-widest uppercase text-sm font-medium rounded-sm py-4 hover:text-accent hover:border-accent/50 transition-colors disabled:opacity-50"
+            >
+              {isSubmitting ? 'Sending...' : 'Send Message'}
             </button>
           </form>
         </div>

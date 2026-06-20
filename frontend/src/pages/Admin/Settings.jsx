@@ -22,6 +22,7 @@ const Settings = () => {
   const [passwordData, setPasswordData] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [passwordStatus, setPasswordStatus] = useState('');
   const [isSavingPassword, setIsSavingPassword] = useState(false);
+  const [userRole, setUserRole] = useState('CLIENT');
 
   const API_BASE_URL = `http://${window.location.hostname}:5000`;
 
@@ -46,6 +47,7 @@ const Settings = () => {
               website: data.website || '',
               other_link: data.other_link || ''
             });
+            setUserRole(data.role || 'CLIENT');
             if (data.profile_image) {
               setProfileImagePreview(`${API_BASE_URL}${data.profile_image}`);
             }
@@ -186,7 +188,7 @@ const Settings = () => {
                 ) : (
                   <User className="w-12 h-12 text-secondary" />
                 )}
-                <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center pointer-events-auto gap-4">
+                <div className="absolute inset-0 bg-base/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center pointer-events-auto gap-4">
                   <label className="cursor-pointer flex items-center gap-2 hover:text-accent text-white text-xs uppercase tracking-widest font-medium transition-colors">
                     <Camera className="w-4 h-4" /> Change
                     <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
@@ -213,20 +215,22 @@ const Settings = () => {
                 />
               </div>
 
-              <div className="space-y-3">
-                <label className="text-sm font-medium tracking-wide text-primary">Specialty *</label>
-                <select 
-                  name="editor_type" value={profile.editor_type} onChange={handleChange} required
-                  className={`${inputClass} appearance-none cursor-pointer [&>option]:bg-surface-2 [&>option]:text-primary`}
-                >
-                  <option value="">Select your specialty</option>
-                  <option value="Photo Editor">Photo Editor</option>
-                  <option value="Video Editor">Video Editor</option>
-                  <option value="Colorist">Colorist</option>
-                  <option value="Retoucher">Retoucher</option>
-                  <option value="Hybrid (Photo & Video)">Hybrid (Photo & Video)</option>
-                </select>
-              </div>
+              {userRole !== 'CLIENT' && (
+                <div className="space-y-3">
+                  <label className="text-sm font-medium tracking-wide text-primary">Specialty *</label>
+                  <select 
+                    name="editor_type" value={profile.editor_type} onChange={handleChange} required
+                    className={`${inputClass} appearance-none cursor-pointer [&>option]:bg-surface-2 [&>option]:text-primary`}
+                  >
+                    <option value="">Select your specialty</option>
+                    <option value="Photo Editor">Photo Editor</option>
+                    <option value="Video Editor">Video Editor</option>
+                    <option value="Colorist">Colorist</option>
+                    <option value="Retoucher">Retoucher</option>
+                    <option value="Hybrid (Photo & Video)">Hybrid (Photo & Video)</option>
+                  </select>
+                </div>
+              )}
 
               <div className="space-y-3">
                 <label className="text-sm font-medium tracking-wide text-primary">Phone</label>
@@ -237,14 +241,16 @@ const Settings = () => {
                 />
               </div>
 
-              <div className="space-y-3">
-                <label className="text-sm font-medium tracking-wide text-primary">Rate</label>
-                <input 
-                  type="text" name="charges" value={profile.charges} onChange={handleChange}
-                  placeholder="e.g. $50/hr or Starting at $100"
-                  className={inputClass}
-                />
-              </div>
+              {userRole !== 'CLIENT' && (
+                <div className="space-y-3">
+                  <label className="text-sm font-medium tracking-wide text-primary">Rate</label>
+                  <input 
+                    type="text" name="charges" value={profile.charges} onChange={handleChange}
+                    placeholder="e.g. $50/hr or Starting at $100"
+                    className={inputClass}
+                  />
+                </div>
+              )}
             </div>
 
             <div className="space-y-3">
@@ -255,63 +261,68 @@ const Settings = () => {
                 className={inputClass}
               />
             </div>
+            {userRole !== 'CLIENT' && (
+              <>
+                <div className="space-y-3">
+                  <label className="text-sm font-medium tracking-wide text-primary">Bio</label>
+                  <textarea 
+                    name="bio" value={profile.bio} onChange={handleChange} rows="4"
+                    placeholder="Write a short bio."
+                    className={inputClass}
+                  />
+                </div>
 
-            <div className="space-y-3">
-              <label className="text-sm font-medium tracking-wide text-primary">Bio</label>
-              <textarea 
-                name="bio" value={profile.bio} onChange={handleChange} rows="4"
-                placeholder="Write a short bio."
-                className={inputClass}
-              />
-            </div>
+                <div className="pt-8 border-t border-surface-2">
+                  <h3 className="text-2xl font-display text-primary mb-6">Social Links</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-3">
+                      <label className="text-sm font-medium tracking-wide text-primary">Instagram</label>
+                      <input 
+                        type="url" name="instagram" value={profile.instagram} onChange={handleChange}
+                        placeholder="https://instagram.com/..."
+                        className={inputClass}
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-sm font-medium tracking-wide text-primary">YouTube</label>
+                      <input 
+                        type="url" name="youtube" value={profile.youtube} onChange={handleChange}
+                        placeholder="https://youtube.com/..."
+                        className={inputClass}
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-sm font-medium tracking-wide text-primary">Website</label>
+                      <input 
+                        type="url" name="website" value={profile.website} onChange={handleChange}
+                        placeholder="https://myportfolio.com"
+                        className={inputClass}
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-sm font-medium tracking-wide text-primary">Other Link</label>
+                      <input 
+                        type="url" name="other_link" value={profile.other_link} onChange={handleChange}
+                        placeholder="https://linktr.ee/..."
+                        className={inputClass}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
 
             <div className="pt-8 border-t border-surface-2">
-              <h3 className="text-2xl font-display text-primary mb-6">Social Links</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-3">
-                  <label className="text-sm font-medium tracking-wide text-primary">Instagram</label>
-                  <input 
-                    type="url" name="instagram" value={profile.instagram} onChange={handleChange}
-                    placeholder="https://instagram.com/..."
-                    className={inputClass}
-                  />
+              {status && (
+                <div className={`p-4 rounded-sm text-sm font-medium ${status.includes('success') ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+                  {status}
                 </div>
-                <div className="space-y-3">
-                  <label className="text-sm font-medium tracking-wide text-primary">YouTube</label>
-                  <input 
-                    type="url" name="youtube" value={profile.youtube} onChange={handleChange}
-                    placeholder="https://youtube.com/..."
-                    className={inputClass}
-                  />
-                </div>
-                <div className="space-y-3">
-                  <label className="text-sm font-medium tracking-wide text-primary">Website</label>
-                  <input 
-                    type="url" name="website" value={profile.website} onChange={handleChange}
-                    placeholder="https://myportfolio.com"
-                    className={inputClass}
-                  />
-                </div>
-                <div className="space-y-3">
-                  <label className="text-sm font-medium tracking-wide text-primary">Other Link</label>
-                  <input 
-                    type="url" name="other_link" value={profile.other_link} onChange={handleChange}
-                    placeholder="https://linktr.ee/..."
-                    className={inputClass}
-                  />
-                </div>
-              </div>
+              )}
             </div>
-
-            {status && (
-              <div className={`p-4 rounded-sm text-sm font-medium ${status.includes('success') ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
-                {status}
-              </div>
-            )}
 
             <button 
               type="submit" disabled={isSaving}
-              className="w-full md:w-auto px-8 py-4 bg-accent text-base tracking-widest uppercase text-sm font-medium rounded-sm hover:bg-yellow-400 transition-colors flex items-center justify-center gap-3 disabled:opacity-50 mt-4"
+              className="w-full md:w-auto px-8 py-4 bg-accent text-base tracking-widest uppercase text-sm font-medium rounded-sm hover:bg-accent/80 transition-colors flex items-center justify-center gap-3 disabled:opacity-50 mt-4"
             >
               {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               {isSaving ? 'Saving...' : 'Save'}

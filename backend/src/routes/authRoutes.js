@@ -90,15 +90,18 @@ router.put('/profile', authMiddleware, upload.single('profile_image'), async (re
     const updateData = {
       name,
       address,
-      contact_phone,
-      editor_type,
-      charges,
-      bio,
-      instagram,
-      youtube,
-      website,
-      other_link
+      contact_phone
     };
+
+    if (req.user.role !== 'CLIENT') {
+      updateData.editor_type = editor_type;
+      updateData.charges = charges;
+      updateData.bio = bio;
+      updateData.instagram = instagram;
+      updateData.youtube = youtube;
+      updateData.website = website;
+      updateData.other_link = other_link;
+    }
 
     if (remove_profile_image === 'true' || remove_profile_image === true) {
       updateData.profile_image = null;

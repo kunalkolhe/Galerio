@@ -14,6 +14,8 @@ import EditorProfile from './pages/Public/EditorProfile';
 import About from './pages/Public/About';
 import Contact from './pages/Public/Contact';
 
+import ProtectedRoute from './components/ProtectedRoute';
+
 function App() {
   return (
     <Router>
@@ -28,9 +30,23 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/editor" element={<EditorDashboard />} />
-            <Route path="/upload" element={<UploadWork />} />
-            <Route path="/settings" element={<Settings />} />
+            
+            {/* Protected Routes */}
+            <Route path="/editor" element={
+              <ProtectedRoute allowedRoles={['EDITOR', 'ADMIN']}>
+                <EditorDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/upload" element={
+              <ProtectedRoute allowedRoles={['EDITOR', 'ADMIN']}>
+                <UploadWork />
+              </ProtectedRoute>
+            } />
+            <Route path="/settings" element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            } />
           </Routes>
         </main>
         <Footer />
